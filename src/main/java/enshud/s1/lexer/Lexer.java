@@ -1,5 +1,12 @@
 package enshud.s1.lexer;
 
+import java.io.File;
+import java.io.File;
+import java.io.FileReader;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 public class Lexer {
 	/**
 	 * サンプルmainメソッド．
@@ -29,6 +36,25 @@ public class Lexer {
 	public void run(final String inputFileName, final String outputFileName) {
 
 		// TODO
+		try{
+			File inputFile = new File(inputFileName);
+			
+			BufferedReader bReader = new BufferedReader(new FileReader(inputFile));
+			
+			
+			
+			bReader.close();
+		}catch(FileNotFoundException e){
+			System.err.println("File not found");
+		}catch(IOException e) {
+			System.err.println(e);
+		}
 
+	}
+	
+	private String numReader(String str, int position) {
+		String token = String.valueOf(str.charAt(position));
+		
+		return token;
 	}
 }
