@@ -1,4 +1,9 @@
 package enshud.s0.trial;
+import java.io.File;
+import java.io.FileReader;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class Trial {
 	/**
@@ -27,6 +32,24 @@ public class Trial {
 	public void run(final String inputFileName) {
 
 		// TODO
+		try{
+			File inputFile = new File(inputFileName);
+			BufferedReader bReader = new BufferedReader(new FileReader(inputFile));
+			
+			int counter = 0;
+			String line = bReader.readLine();
+			while(line != null) {
+				counter++;
+				line = bReader.readLine();
+			}
+			System.out.println(counter);
+			
+			bReader.close();
+		}catch(FileNotFoundException e){
+			System.err.println("File not found");
+		}catch(IOException e) {
+			System.err.println(e);
+		}
 
 	}
 }
