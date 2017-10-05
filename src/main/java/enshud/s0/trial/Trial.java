@@ -36,7 +36,7 @@ public class Trial {
 			File inputFile = new File(inputFileName);
 			BufferedReader bReader = new BufferedReader(new FileReader(inputFile));
 			
-			int counter = 0;
+			int counter = 1;
 			String line = bReader.readLine();
 			while(line != null) {
 				counter++;
@@ -51,5 +51,6 @@ public class Trial {
 			System.err.println(e);
 		}
 
+		
 	}
 }
