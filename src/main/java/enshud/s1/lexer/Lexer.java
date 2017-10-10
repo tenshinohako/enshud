@@ -1,14 +1,17 @@
 package enshud.s1.lexer;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
 
 
 public class Lexer {
@@ -42,8 +45,28 @@ public class Lexer {
 	static final char SRBRACE = 28;
 	static final char SBNOT = 29;
 	static final char SEOF = 30;
+	static final char SSSYMBOL = 31;
 
 	static final char[] cTable = {
+			SNULL, SNULL, SNULL, SNULL, SNULL, SNULL, SNULL, SNULL,
+			SNULL, SNULL, SNULL, SNULL, SNULL, SNULL, SNULL, SNULL,
+			SNULL, SNULL, SNULL, SNULL, SNULL, SNULL, SNULL, SNULL,
+			SNULL, SNULL, SNULL, SNULL, SNULL, SNULL, SNULL, SNULL,
+			SNULL, SNULL, SNULL, SNULL, SNULL, SNULL, SNULL, SSQUOTE,
+			SSSYMBOL, SSSYMBOL, SSSYMBOL, SSSYMBOL, SSSYMBOL, SSSYMBOL, SDOT, SSSYMBOL,
+			SDIGIT, SDIGIT, SDIGIT, SDIGIT, SDIGIT, SDIGIT, SDIGIT, SDIGIT,
+			SDIGIT, SDIGIT, SCOLON, SSSYMBOL, SLESS, SSSYMBOL, SGREAT, SNULL,
+			SNULL, SALPHA, SALPHA, SALPHA, SALPHA, SALPHA, SALPHA, SALPHA,
+			SALPHA, SALPHA, SALPHA, SALPHA, SALPHA, SALPHA, SALPHA, SALPHA,
+			SALPHA, SALPHA, SALPHA, SALPHA, SALPHA, SALPHA, SALPHA, SALPHA,
+			SALPHA, SALPHA, SALPHA, SSSYMBOL, SNULL, SSSYMBOL, SNULL, SALPHA,
+			SNULL, SALPHA, SALPHA, SALPHA, SALPHA, SALPHA, SALPHA, SALPHA,
+			SALPHA, SALPHA, SALPHA, SALPHA, SALPHA, SALPHA, SALPHA, SALPHA,
+			SALPHA, SALPHA, SALPHA, SALPHA, SALPHA, SALPHA, SALPHA, SALPHA,
+			SALPHA, SALPHA, SALPHA, SLBRACE, SNULL, SRBRACE, SNULL, SNULL
+	};
+
+/*	static final char[] cTable = {
 			SNULL, SNULL, SNULL, SNULL, SNULL, SNULL, SNULL, SNULL,
 			SNULL, SNULL, SNULL, SNULL, SNULL, SNULL, SNULL, SNULL,
 			SNULL, SNULL, SNULL, SNULL, SNULL, SNULL, SNULL, SNULL,
@@ -77,9 +100,9 @@ public class Lexer {
 			SNULL, SNULL, SNULL, SNULL, SNULL, SNULL, SNULL, SNULL,
 			SNULL, SNULL, SNULL, SNULL, SNULL, SNULL, SNULL, SNULL,
 			SEOF
-	};
+	};*/
 
-	static final Map<String, Integer> RESERVED_WORDS = Collections.unmodifiableMap(
+	static final Map<String, Integer> RESERVED_SYMBOLS = Collections.unmodifiableMap(
 			new HashMap<String, Integer>() {{
 				put("and", 0);
 				put("array", 1);
@@ -106,7 +129,6 @@ public class Lexer {
 				put("var", 21);
 				put("while", 22);
 				put("writeln", 23);
-				/*
 				put("=", 24);
 				put("<>", 25);
 				put("<", 26);
@@ -126,9 +148,54 @@ public class Lexer {
 				put(":=", 40);
 				put(",", 41);
 				put(".", 42);
-				*/
 			}}
 	);
+
+	static final String[] TOKEN_NAME= {
+			"SAND",
+			"SARRAY",
+			"SBEGIN",
+			"SBOOLEAN",
+			"SCHAR",
+			"SDIVD",
+			"SDO",
+			"SELSE",
+			"SEND",
+			"SFALSE",
+			"SIF",
+			"SINTEGER",
+			"SMOD",
+			"SNOT",
+			"SOF",
+			"SOR",
+			"SPROCEDURE",
+			"SPROGRAM",
+			"SREADLN",
+			"STHEN",
+			"STRUE",
+			"SVAR",
+			"SWHILE",
+			"SWRITELN",
+			"SEQUAL",
+			"SNOTEQUAL",
+			"SLESS",
+			"SLESSEQUAL",
+			"SGREATEQUAL",
+			"SGREAT",
+			"SPLUS",
+			"SMINUS",
+			"SSTAR",
+			"SLPAREN",
+			"SRPAREN",
+			"SLBRACKET",
+			"SRBRACKET",
+			"SSEMICOLON",
+			"SCOLON",
+			"SRANGE",
+			"SASSIGN",
+			"SCOMMA",
+			"SDOT"
+	};
 
 	/**
 	 * サンプルmainメソッド．
@@ -162,41 +229,139 @@ public class Lexer {
 			File inputFile = new File(inputFileName);
 			BufferedReader br = new BufferedReader(new FileReader(inputFile));
 
+			ArrayList<String> outList = new ArrayList<String>();
+			String outLineBuf;
 			String lineBuffer;
+			int lineNum = 0;
 			while((lineBuffer = br.readLine()) != null) {
-				String tokenBuffer;
+				lineNum++;
 				for(int i = 0; i < lineBuffer.length(); i++) {
+					String tokenBuffer = "";
 					char cBuf = lineBuffer.charAt(i);
 
 					switch(cTable[cBuf]){
 					case SNULL:
 						break;
+					case SLBRACE:
+						while(cTable[cBuf] != SRBRACE && cTable[cBuf] != '\n') {
+							cBuf = lineBuffer.charAt(++i);
+						}
+						break;
 					case SALPHA:
-						tokenBuffer = "";
 						while(cTable[cBuf] == SALPHA || cTable[cBuf] == SDIGIT) {
 							tokenBuffer += String.valueOf(cBuf);
 							cBuf = lineBuffer.charAt(++i);
 						}
 						i--;
-						if(RESERVED_WORDS.containsKey(tokenBuffer)) {
-
-						}else {
-
-						}
-
 						break;
 					case SDIGIT:
-						tokenBuffer = "";
 						while(cTable[cBuf] == SDIGIT) {
 							tokenBuffer += String.valueOf(cBuf);
 							cBuf = lineBuffer.charAt(++i);
 						}
 						i--;
-
 						break;
-					}
-				}
+					case SSQUOTE:
+						tokenBuffer = "'";
+						cBuf = lineBuffer.charAt(++i);
+						while(cTable[cBuf] != SSQUOTE && cBuf != '\n') {
+							tokenBuffer += String.valueOf(cBuf);
+							cBuf = lineBuffer.charAt(++i);
+						}
+						if(cTable[cBuf] == SSQUOTE) {
+							tokenBuffer += "'";
+						}
+						break;
+					case SSSYMBOL:
+						tokenBuffer = String.valueOf(cBuf);
+						break;
+					case SDOT:
+						tokenBuffer = String.valueOf(cBuf);
+						cBuf = lineBuffer.charAt(++i);
+						if(cBuf == '.') {
+							tokenBuffer += String.valueOf(cBuf);
+						}else {
+							i--;
+						}
+						break;
+					case SCOLON:
+						tokenBuffer = String.valueOf(cBuf);
+						cBuf = lineBuffer.charAt(++i);
+						if(cBuf == '=') {
+							tokenBuffer += String.valueOf(cBuf);
+						}else {
+							i--;
+						}
+						break;
+					case SLESS:
+						tokenBuffer = String.valueOf(cBuf);
+						cBuf = lineBuffer.charAt(++i);
+						if(cBuf == '>' || cBuf == '=') {
+							tokenBuffer += String.valueOf(cBuf);
+						}else {
+							i--;
+						}
+						break;
+					case SGREAT:
+						tokenBuffer = String.valueOf(cBuf);
+						cBuf = lineBuffer.charAt(++i);
+						if(cBuf == '=') {
+							tokenBuffer += String.valueOf(cBuf);
+						}else {
+							i--;
+						}
+						break;
 
+					}
+
+					if(tokenBuffer.equals("")) {
+						continue;
+					}
+
+					if(RESERVED_SYMBOLS.containsKey(tokenBuffer)) {
+						outLineBuf = tokenBuffer
+								+ "\t"
+								+ TOKEN_NAME[RESERVED_SYMBOLS.get(tokenBuffer)]
+								+ "\t"
+								+ RESERVED_SYMBOLS.get(tokenBuffer)
+								+ "\t"
+								+ lineNum;
+					}else {
+						switch(cTable[tokenBuffer.charAt(0)]){
+						case SALPHA:
+							outLineBuf = tokenBuffer
+									+ "\t"
+									+ "SIDENTIFIER"
+									+ "\t"
+									+ 43
+									+ "\t"
+									+ lineNum;
+							break;
+						case SDIGIT:
+							outLineBuf = tokenBuffer
+									+ "\t"
+									+ "SCONSTANT"
+									+ "\t"
+									+ 44
+									+ "\t"
+									+ lineNum;
+							break;
+						case SSQUOTE:
+							outLineBuf = tokenBuffer
+									+ "\t"
+									+ "SSTRING"
+									+ "\t"
+									+ 45
+									+ "\t"
+									+ lineNum;
+							break;
+						default:
+							outLineBuf = tokenBuffer;
+							break;
+						}
+					}
+					outList.add(outLineBuf);
+				}
 
 
 
@@ -204,6 +369,16 @@ public class Lexer {
 
 			}
 			br.close();
+
+			File outputFile = new File(outputFileName);
+			PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(outputFile)));
+			for(String line : outList) {
+				pw.println(line);
+			}
+			pw.close();
+
+			System.out.println("OK");
+
 		}catch(FileNotFoundException e){
 			System.err.println("File not found");
 		}catch(IOException e) {
