@@ -234,6 +234,7 @@ public class Lexer {
 			String lineBuffer;
 			int lineNum = 0;
 			while((lineBuffer = br.readLine()) != null) {
+				lineBuffer += " ";
 				lineNum++;
 				for(int i = 0; i < lineBuffer.length(); i++) {
 					String tokenBuffer = "";
