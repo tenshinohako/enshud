@@ -26,6 +26,9 @@ public class ProgramModel {
 
 	private void block() {
 
+		/*
+		 * method追加おじさん
+		 */
 	}
 
 	private void compoundStatement() {
