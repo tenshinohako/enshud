@@ -5,8 +5,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Parser {
+	
 	/**
 	 * サンプルmainメソッド．
 	 * 単体テストの対象ではないので自由に改変しても良い．
@@ -42,9 +44,19 @@ public class Parser {
 		try {
 			File inputFile = new File(inputFileName);
 			BufferedReader br = new BufferedReader(new FileReader(inputFile));
-
-
+			
+			ArrayList<Integer> tokenList = new ArrayList<Integer>();
+			String lineBuf;
+			while((lineBuf = br.readLine()) != null) {
+				String[] tokenBuf = lineBuf.split("\t", 0);
+				tokenList.add(new Integer(tokenBuf[2]).intValue());
+			}
 			br.close();
+			
+			ProgramModel pm = new ProgramModel(tokenList);
+			
+			
+			
 		}catch(FileNotFoundException e){
 			System.err.println("File not found");
 		}catch(IOException e) {
