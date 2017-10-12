@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Parser {
-	
+
 	/**
 	 * サンプルmainメソッド．
 	 * 単体テストの対象ではないので自由に改変しても良い．
@@ -44,7 +44,7 @@ public class Parser {
 		try {
 			File inputFile = new File(inputFileName);
 			BufferedReader br = new BufferedReader(new FileReader(inputFile));
-			
+
 			ArrayList<Integer> tokenList = new ArrayList<Integer>();
 			String lineBuf;
 			while((lineBuf = br.readLine()) != null) {
@@ -52,11 +52,11 @@ public class Parser {
 				tokenList.add(new Integer(tokenBuf[2]).intValue());
 			}
 			br.close();
-			
+
 			ProgramModel pm = new ProgramModel(tokenList);
-			
-			
-			
+			pm.programRoot();
+
+
 		}catch(FileNotFoundException e){
 			System.err.println("File not found");
 		}catch(IOException e) {
