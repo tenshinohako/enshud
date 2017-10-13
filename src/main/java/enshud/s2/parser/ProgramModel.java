@@ -89,15 +89,35 @@ public class ProgramModel {
 	}
 
 	private void compoundStatement() {
-
+		if(tokenList.get(pointer++) != SBEGIN) {
+			error();
+		}
+		sequenceOfSentences();
+		if(tokenList.get(pointer++) != SEND) {
+			error();
+		}
 	}
 
 	private void sequenceOfName() {
-
+		if(tokenList.get(pointer++) != SIDENTIFIER) {
+			error();
+		}
+		while(true) {
+			if(tokenList.get(pointer++) != SCOMMA) {
+				pointer--;
+				break;
+			}else {
+				if(tokenList.get(pointer++) != SIDENTIFIER) {
+					error();
+				}
+			}
+		}
 	}
 
 	private void varDecl() {
-		if(tokenList.get(pointer++) == SVAR) {
+		if(tokenList.get(pointer++) != SVAR) {
+			pointer--;
+		}else {
 			sequenceOfVarDecls();
 		}
 	}
@@ -107,6 +127,35 @@ public class ProgramModel {
 	}
 
 	private void sequenceOfVarDecls() {
+		subVarDecl();
+		while(true) {
+			if(tokenList.get(pointer++) != SIDENTIFIER) {
+				pointer--;
+				break;
+			}else {
+				subVarDecl();
+			}
+
+		}
+	}
+
+	private void sequenceOfSentences() {
+		sentence();
+		while(true) {
+			if(tokenList.get(pointer++) != SSEMICOLON) {
+				pointer--;
+				break;
+			}else {
+				sentence();
+			}
+		}
+	}
+
+	private void subVarDecl() {
+
+	}
+
+	private void sentence() {
 
 	}
 
