@@ -54,7 +54,7 @@ public class Parser {
 			br.close();
 
 			ProgramModel pm = new ProgramModel(tokenList);
-			pm.programRoot();
+			pm.program();
 
 
 		}catch(FileNotFoundException e){

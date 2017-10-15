@@ -58,7 +58,7 @@ public class ProgramModel {
 	}
 
 
-	public void programRoot() {
+	public void program() {//(1)
 		header();
 		block();
 		compoundStatement();
@@ -68,13 +68,11 @@ public class ProgramModel {
 		if(tokenList.get(pointer++) != SPROGRAM) {
 			error();
 		}
-		if(tokenList.get(pointer++) != SIDENTIFIER) {
-			error();
-		}
+		programName();
 		if(tokenList.get(pointer++) != SLPAREN) {
 			error();
 		}
-		sequenceOfName();
+		seqOfNames();
 		if(tokenList.get(pointer++) != SRPAREN) {
 			error();
 		}
@@ -83,79 +81,308 @@ public class ProgramModel {
 		}
 	}
 
-	private void block() {
-		varDecl();
-		subprogramDecls();
+	private void programName() {//(2)
+		name();
 	}
 
-	private void compoundStatement() {
-		if(tokenList.get(pointer++) != SBEGIN) {
-			error();
-		}
-		sequenceOfSentences();
-		if(tokenList.get(pointer++) != SEND) {
-			error();
-		}
-	}
-
-	private void sequenceOfName() {
-		if(tokenList.get(pointer++) != SIDENTIFIER) {
-			error();
-		}
+	private void seqOfNames() {//(3)
+		name();
 		while(true) {
 			if(tokenList.get(pointer++) != SCOMMA) {
 				pointer--;
 				break;
 			}else {
-				if(tokenList.get(pointer++) != SIDENTIFIER) {
+				name();
+			}
+		}
+	}
+
+	private void block() {//(4)
+		varDecl();
+		subprogramDecls();
+	}
+
+	private void varDecl() {//(5)
+		if(tokenList.get(pointer++) != SVAR) {
+			pointer--;
+		}else {
+			seqOfVarDecls();
+		}
+	}
+
+	private void seqOfVarDecls() {//(6)
+		seqOfVarDecls();
+
+
+
+
+	}
+
+	private void seqOfVarNames() {//(7)
+		varName();
+		while(true) {
+			if(tokenList.get(pointer++) != SCOMMA) {
+				pointer--;
+				break;
+			}else {
+				varName();
+			}
+		}
+	}
+
+	private void varName() {//(8)
+		name();
+	}
+
+	private void type() {//(9)
+		switch(tokenList.get(pointer++)) {
+		case SINTEGER:
+			break;
+		case SCHAR:
+			break;
+		case SBOOLEAN:
+			break;
+		case SARRAY:
+			if(tokenList.get(pointer++) != SLBRACKET) {
+				error();
+			}
+			maxSuffix();
+			if(tokenList.get(pointer++) != SRANGE) {
+				error();
+			}
+			minSuffix();
+			if(tokenList.get(pointer++) != SRBRACKET) {
+				error();
+			}
+			if(tokenList.get(pointer++) != SOF) {
+				error();
+			}
+			standardType();
+			break;
+		default:
+			error();
+			break;
+		}
+	}
+
+	private void standardType() {//(10)
+		switch(tokenList.get(pointer++)) {
+		case SINTEGER:
+			break;
+		case SCHAR:
+			break;
+		case SBOOLEAN:
+			break;
+		default:
+			error();
+			break;
+		}
+	}
+
+	private void arrayType() {//(11)
+
+	}
+
+	private void maxSuffix() {//(12)
+		integer();
+	}
+
+	private void minSuffix() {//(13)
+		integer();
+	}
+
+	private void integer() {//(14)
+		switch(tokenList.get(pointer++)) {
+		case SPLUS:
+			break;
+		case SMINUS:
+			break;
+		default:
+			pointer--;
+			break;
+		}
+		unsignedInteger();
+	}
+
+	private void sign() {//(15)
+		switch(tokenList.get(pointer++)) {
+		case SPLUS:
+			break;
+		case SMINUS:
+			break;
+		default:
+			error();
+			break;
+		}
+	}
+
+	private void subprogramDecls() {//(16)
+		while(true) {
+			if(tokenList.get(pointer++) != SPROCEDURE) {
+				pointer--;
+				break;
+			}else {
+				subprogramDecl();
+				if(tokenList.get(pointer++) != SSEMICOLON) {
 					error();
 				}
 			}
 		}
 	}
 
-	private void varDecl() {
-		if(tokenList.get(pointer++) != SVAR) {
-			pointer--;
-		}else {
-			sequenceOfVarDecls();
+	private void subprogramDecl() {//(17)
+		subprogramHeader();
+		varDecl();
+		compoundStatement();
+	}
+
+	private void subprogramHeader() {//(18)
+
+	}
+
+	private void procedureName() {//(19)
+
+	}
+
+	private void tempParameter() {//(20)
+
+	}
+
+	private void seqOfTempParameters() {//(21)
+
+	}
+
+	private void seqOfTempParameterNames() {//(22)
+
+	}
+
+	private void tempParameterName() {//(23)
+
+	}
+
+	private void compoundStatement() {//(24)
+		if(tokenList.get(pointer++) != SBEGIN) {
+			error();
+		}
+		sequenceOfStatements();
+		if(tokenList.get(pointer++) != SEND) {
+			error();
 		}
 	}
 
-	private void subprogramDecls() {
-
-	}
-
-	private void sequenceOfVarDecls() {
-		subVarDecl();
-		while(true) {
-			if(tokenList.get(pointer++) != SIDENTIFIER) {
-				pointer--;
-				break;
-			}else {
-				subVarDecl();
-			}
-
-		}
-	}
-
-	private void sequenceOfSentences() {
-		sentence();
+	private void sequenceOfStatements() {//(25)
+		statement();
 		while(true) {
 			if(tokenList.get(pointer++) != SSEMICOLON) {
 				pointer--;
 				break;
 			}else {
-				sentence();
+				statement();
 			}
 		}
 	}
 
-	private void subVarDecl() {
+	private void statement() {//(26)
 
 	}
 
-	private void sentence() {
+	private void basicStatement() {//(27)
+
+	}
+
+	private void assignmentStatement() {//(28)
+
+	}
+
+	private void leftSide() {//(29)
+
+	}
+
+	private void var() {//(30)
+
+	}
+
+	private void pureVar() {//(31)
+
+	}
+
+	private void varWithSuffix() {//(32)
+
+	}
+
+	private void suffix() {//(33)
+
+	}
+
+	private void procedureCallStatement() {//(34)
+
+	}
+
+	private void seqOfFormulae() {//(35)
+
+	}
+
+	private void formula() {//(36)
+
+	}
+
+	private void pureFormula() {//(37)
+
+	}
+
+	private void term() {//(38)
+
+	}
+
+	private void factor() {//(39)
+
+	}
+
+	private void relationalOpe() {//(40)
+
+	}
+
+	private void additiveOpe() {//(41)
+
+	}
+
+	private void multiplicativeOpe() {//(42)
+
+	}
+
+	private void inOutString() {//(43)
+
+	}
+
+	private void seqOfVars() {//(44)
+
+	}
+
+	private void canstant() {//(45)
+
+	}
+
+	private void unsignedInteger() {//(46)
+
+	}
+
+	private void string() {//(47)
+
+	}
+
+	private void stringElement() {//(48)
+
+	}
+
+	private void name() {//(49)
+
+	}
+
+	private void alphabet() {//(50)
+
+	}
+
+	private void digit() {//(51)
 
 	}
 
