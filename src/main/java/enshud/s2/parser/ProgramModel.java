@@ -222,6 +222,7 @@ public class ProgramModel {
 				pointer--;
 				break;
 			}else {
+				pointer--;
 				subprogramDecl();
 				if(tokenList.get(pointer++) != SSEMICOLON) {
 					error();
@@ -237,15 +238,29 @@ public class ProgramModel {
 	}
 
 	private void subprogramHeader() {//(18)
-
+		if(tokenList.get(pointer++) != SPROCEDURE) {
+			error();
+		}
+		procedureName();
+		tempParameter();
+		if(tokenList.get(pointer++) != SSEMICOLON) {
+			error();
+		}
 	}
 
 	private void procedureName() {//(19)
-
+		name();
 	}
 
 	private void tempParameter() {//(20)
-
+		if(tokenList.get(pointer++) != SLPAREN) {
+			pointer--;
+		}else {
+			seqOfTempParameters();
+			if(tokenList.get(pointer++) != SRPAREN) {
+				error();
+			}
+		}
 	}
 
 	private void seqOfTempParameters() {//(21)
@@ -253,24 +268,32 @@ public class ProgramModel {
 	}
 
 	private void seqOfTempParameterNames() {//(22)
-
+		tempParameterName();
+		while(true) {
+			if(tokenList.get(pointer++) != SCOMMA) {
+				pointer--;
+				break;
+			}else {
+				tempParameterName();
+			}
+		}
 	}
 
 	private void tempParameterName() {//(23)
-
+		name();
 	}
 
 	private void compoundStatement() {//(24)
 		if(tokenList.get(pointer++) != SBEGIN) {
 			error();
 		}
-		sequenceOfStatements();
+		seqOfStatements();
 		if(tokenList.get(pointer++) != SEND) {
 			error();
 		}
 	}
 
-	private void sequenceOfStatements() {//(25)
+	private void seqOfStatements() {//(25)
 		statement();
 		while(true) {
 			if(tokenList.get(pointer++) != SSEMICOLON) {
@@ -291,100 +314,269 @@ public class ProgramModel {
 	}
 
 	private void assignmentStatement() {//(28)
-
+		leftSide();
+		if(tokenList.get(pointer++) != SASSIGN) {
+			error();
+		}
+		formula();
 	}
 
 	private void leftSide() {//(29)
-
+		var();
 	}
 
 	private void var() {//(30)
-
+		varName();
+		if(tokenList.get(pointer++) != SLBRACKET) {
+			pointer--;
+		}else {
+			suffix();
+			if(tokenList.get(pointer++) != SRBRACKET) {
+				error();
+			}
+		}
 	}
 
-	private void pureVar() {//(31)
+/*	private void pureVar() {//(31)
+		varName();
+	}*/
 
-	}
-
-	private void varWithSuffix() {//(32)
-
-	}
+/*	private void varWithSuffix() {//(32)
+		varName();
+		if(tokenList.get(pointer++) != SLBRACKET) {
+			error();
+		}
+		suffix();
+		if(tokenList.get(pointer++) != SRBRACKET) {
+			error();
+		}
+	}*/
 
 	private void suffix() {//(33)
-
+		formula();
 	}
 
 	private void procedureCallStatement() {//(34)
-
+		procedureName();
+		if(tokenList.get(pointer++) != SLPAREN) {
+			pointer--;
+		}else {
+			seqOfFormulae();
+			if(tokenList.get(pointer++) != SRPAREN) {
+				error();
+			}
+		}
 	}
 
 	private void seqOfFormulae() {//(35)
-
+		formula();
+		while(true) {
+			if(tokenList.get(pointer++) != SCOMMA) {
+				pointer--;
+				break;
+			}else {
+				formula();
+			}
+		}
 	}
 
 	private void formula() {//(36)
-
+		pureFormula();
+		if(relationalOpe()) {
+			pureFormula();
+		}else {
+			pointer--;
+		}
 	}
 
 	private void pureFormula() {//(37)
-
+		switch(tokenList.get(pointer++)) {
+		case SPLUS:
+			break;
+		case SMINUS:
+			break;
+		default:
+			pointer--;
+			break;
+		}
+		term();
+		while(true) {
+			if(additiveOpe()) {
+				term();
+			}else {
+				pointer--;
+				break;
+			}
+		}
 	}
 
 	private void term() {//(38)
-
+		factor();
+		while(true) {
+			if(multiplicativeOpe()) {
+				factor();
+			}else {
+				pointer--;
+				break;
+			}
+		}
 	}
 
 	private void factor() {//(39)
-
+		switch(tokenList.get(pointer++)) {
+		case SIDENTIFIER:
+			pointer--;
+			var();
+			break;
+		case SLPAREN:
+			formula();
+			if(tokenList.get(pointer++) != SRPAREN) {
+				error();
+			}
+			break;
+		case SNOT:
+			factor();
+			break;
+		default:
+			constant();
+		}
 	}
 
-	private void relationalOpe() {//(40)
-
+	private boolean relationalOpe() {//(40)
+		switch(tokenList.get(pointer++)) {
+		case SEQUAL:
+			return true;
+		case SNOTEQUAL:
+			return true;
+		case SLESS:
+			return true;
+		case SLESSEQUAL:
+			return true;
+		case SGREAT:
+			return true;
+		case SGREATEQUAL:
+			return true;
+		default:
+			return false;
+		}
 	}
 
-	private void additiveOpe() {//(41)
-
+	private boolean additiveOpe() {//(41)
+		switch(tokenList.get(pointer++)) {
+		case SPLUS:
+			return true;
+		case SMINUS:
+			return true;
+		case SOR:
+			return true;
+		default:
+			return false;
+		}
 	}
 
-	private void multiplicativeOpe() {//(42)
-
+	private boolean multiplicativeOpe() {//(42)
+		switch(tokenList.get(pointer++)) {
+		case SSTAR:
+			return true;
+		case SDIVD:
+			return true;
+		case SMOD:
+			return true;
+		case SAND:
+			return true;
+		default:
+			return false;
+		}
 	}
 
 	private void inOutString() {//(43)
-
+		switch(tokenList.get(pointer++)) {
+		case SREADLN:
+			if(tokenList.get(pointer++) != SLPAREN) {
+				pointer--;
+			}else {
+				seqOfVars();
+				if(tokenList.get(pointer++) != SRPAREN) {
+					error();
+				}
+			}
+			break;
+		case SWRITELN:
+			if(tokenList.get(pointer++) != SLPAREN) {
+				pointer--;
+			}else {
+				seqOfFormulae();
+				if(tokenList.get(pointer++) != SRPAREN) {
+					error();
+				}
+			}
+			break;
+		default:
+			error();
+			break;
+		}
 	}
 
 	private void seqOfVars() {//(44)
-
+		var();
+		while(true) {
+			if(tokenList.get(pointer++) != SCOMMA) {
+				pointer--;
+				break;
+			}else {
+				var();
+			}
+		}
 	}
 
-	private void canstant() {//(45)
-
+	private void constant() {//(45)
+		switch(tokenList.get(pointer++)) {
+		case SCONSTANT:
+			pointer--;
+			unsignedInteger();
+			break;
+		case SIDENTIFIER:
+			pointer--;
+			string();
+			break;
+		case SFALSE:
+			break;
+		case STRUE:
+			break;
+		default:
+			break;
+		}
 	}
 
 	private void unsignedInteger() {//(46)
-
+		if(tokenList.get(pointer++) != SCONSTANT) {
+			error();
+		}
 	}
 
 	private void string() {//(47)
-
+		if(tokenList.get(pointer++) != SSTRING) {
+			error();
+		}
 	}
 
-	private void stringElement() {//(48)
+/*	private void stringElement() {//(48)
 
-	}
+	}*/
 
 	private void name() {//(49)
-
+		if(tokenList.get(pointer++) != SIDENTIFIER) {
+			error();
+		}
 	}
 
-	private void alphabet() {//(50)
+/*	private void alphabet() {//(50)
 
-	}
+	}*/
 
-	private void digit() {//(51)
+/*	private void digit() {//(51)
 
-	}
+	}*/
 
 	private void error() {
 
