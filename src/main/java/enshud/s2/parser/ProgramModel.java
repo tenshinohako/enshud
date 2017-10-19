@@ -111,11 +111,23 @@ public class ProgramModel {
 	}
 
 	private void seqOfVarDecls() {//(6)
-		seqOfVarDecls();
+		elementOfSeqOfVarDecls();
+		if(tokenList.get(pointer++) != SIDENTIFIER) {
+			pointer--;
+		}else {
+			elementOfSeqOfVarDecls();
+		}
+	}
 
-
-
-
+	private void elementOfSeqOfVarDecls() {
+		seqOfVarNames();
+		if(tokenList.get(pointer++) != SCOLON) {
+			error();
+		}
+		type();
+		if(tokenList.get(pointer++) != SSEMICOLON) {
+			error();
+		}
 	}
 
 	private void seqOfVarNames() {//(7)
@@ -135,33 +147,11 @@ public class ProgramModel {
 	}
 
 	private void type() {//(9)
-		switch(tokenList.get(pointer++)) {
-		case SINTEGER:
-			break;
-		case SCHAR:
-			break;
-		case SBOOLEAN:
-			break;
-		case SARRAY:
-			if(tokenList.get(pointer++) != SLBRACKET) {
-				error();
-			}
-			maxSuffix();
-			if(tokenList.get(pointer++) != SRANGE) {
-				error();
-			}
-			minSuffix();
-			if(tokenList.get(pointer++) != SRBRACKET) {
-				error();
-			}
-			if(tokenList.get(pointer++) != SOF) {
-				error();
-			}
+		if(tokenList.get(pointer++) != SARRAY) {
 			standardType();
-			break;
-		default:
-			error();
-			break;
+		}else {
+			pointer--;
+			arrayType();
 		}
 	}
 
@@ -180,7 +170,25 @@ public class ProgramModel {
 	}
 
 	private void arrayType() {//(11)
-
+		if(tokenList.get(pointer++) != SARRAY) {
+			error();
+		}else {
+			if(tokenList.get(pointer++) != SLBRACKET) {
+				error();
+			}
+			maxSuffix();
+			if(tokenList.get(pointer++) != SRANGE) {
+				error();
+			}
+			minSuffix();
+			if(tokenList.get(pointer++) != SRBRACKET) {
+				error();
+			}
+			if(tokenList.get(pointer++) != SOF) {
+				error();
+			}
+			standardType();
+		}
 	}
 
 	private void maxSuffix() {//(12)
@@ -204,7 +212,7 @@ public class ProgramModel {
 		unsignedInteger();
 	}
 
-	private void sign() {//(15)
+/*	private void sign() {//(15)
 		switch(tokenList.get(pointer++)) {
 		case SPLUS:
 			break;
@@ -214,7 +222,7 @@ public class ProgramModel {
 			error();
 			break;
 		}
-	}
+	}*/
 
 	private void subprogramDecls() {//(16)
 		while(true) {
@@ -264,7 +272,23 @@ public class ProgramModel {
 	}
 
 	private void seqOfTempParameters() {//(21)
+		elementOfSeqOfTempParameters();
+		while(true) {
+			if(tokenList.get(pointer++) != SSEMICOLON) {
+				pointer--;
+				break;
+			}else {
+				elementOfSeqOfTempParameters();
+			}
+		}
+	}
 
+	private void elementOfSeqOfTempParameters() {
+		seqOfTempParameterNames();
+		if(tokenList.get(pointer++) != SCOLON) {
+			error();
+		}
+		standardType();
 	}
 
 	private void seqOfTempParameterNames() {//(22)
@@ -306,10 +330,69 @@ public class ProgramModel {
 	}
 
 	private void statement() {//(26)
+		switch(tokenList.get(pointer++)) {
+		case SIF:
+			formula();
+			if(tokenList.get(pointer++) != STHEN) {
+				error();
+			}
+			compoundStatement();
+			if(tokenList.get(pointer++) != SELSE) {
+				pointer--;
+			}else {
+				compoundStatement();
+			}
+			break;
+		case SWHILE:
+			formula();
+			if(tokenList.get(pointer++) != SDO) {
+				error();
+			}
+			statement();
+			break;
+		default:
+			basicStatement();
+		}
 
 	}
 
 	private void basicStatement() {//(27)
+		switch(tokenList.get(pointer++)) {
+		case SIDENTIFIER:
+			switch(tokenList.get(pointer++)) {
+			case SLPAREN:
+				pointer--;
+				pointer--;
+				procedureCallStatement();
+				break;
+			case SLBRACKET:
+				pointer--;
+				pointer--;
+				assignmentStatement();
+				break;
+			case SEND:
+				pointer--;
+				break;
+			default:
+				error();
+				break;
+			}
+			break;
+		case SREADLN:
+			pointer--;
+			inOutString();
+			break;
+		case SWRITELN:
+			pointer--;
+			inOutString();
+			break;
+		case SBEGIN:
+			compoundStatement();
+			break;
+		default:
+			error();
+			break;
+		}
 
 	}
 
