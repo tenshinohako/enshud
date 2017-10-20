@@ -46,15 +46,19 @@ public class Parser {
 			BufferedReader br = new BufferedReader(new FileReader(inputFile));
 
 			ArrayList<Integer> tokenList = new ArrayList<Integer>();
+			ArrayList<Integer> lineList = new ArrayList<Integer>();
 			String lineBuf;
 			while((lineBuf = br.readLine()) != null) {
 				String[] tokenBuf = lineBuf.split("\t", 0);
 				tokenList.add(new Integer(tokenBuf[2]).intValue());
+				lineList.add(new Integer(tokenBuf[3]).intValue());
 			}
 			br.close();
 
-			ProgramModel pm = new ProgramModel(tokenList);
+			ProgramModel pm = new ProgramModel(tokenList, lineList);
 			pm.program();
+
+			System.out.println("OK");
 
 
 		}catch(FileNotFoundException e){

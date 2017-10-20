@@ -51,10 +51,12 @@ public class ProgramModel {
 	static final int SSTRING = 45;
 
 	private ArrayList<Integer> tokenList;
+	private ArrayList<Integer> lineList;
 	private Integer pointer = new Integer(0);
 
-	public ProgramModel(ArrayList<Integer> list) {
+	public ProgramModel(ArrayList<Integer> list, ArrayList<Integer> list2) {
 		tokenList = list;
+		lineList = list2;
 	}
 
 
@@ -112,10 +114,14 @@ public class ProgramModel {
 
 	private void seqOfVarDecls() {//(6)
 		elementOfSeqOfVarDecls();
-		if(tokenList.get(pointer++) != SIDENTIFIER) {
-			pointer--;
-		}else {
-			elementOfSeqOfVarDecls();
+		while(true) {
+			if(tokenList.get(pointer++) != SIDENTIFIER) {
+				pointer--;
+				break;
+				}else {
+					pointer--;
+					elementOfSeqOfVarDecls();
+				}
 		}
 	}
 
@@ -148,6 +154,7 @@ public class ProgramModel {
 
 	private void type() {//(9)
 		if(tokenList.get(pointer++) != SARRAY) {
+			pointer--;
 			standardType();
 		}else {
 			pointer--;
@@ -351,6 +358,7 @@ public class ProgramModel {
 			statement();
 			break;
 		default:
+			pointer--;
 			basicStatement();
 		}
 
@@ -365,6 +373,7 @@ public class ProgramModel {
 				pointer--;
 				procedureCallStatement();
 				break;
+			case SASSIGN:
 			case SLBRACKET:
 				pointer--;
 				pointer--;
@@ -387,6 +396,7 @@ public class ProgramModel {
 			inOutString();
 			break;
 		case SBEGIN:
+			pointer--;
 			compoundStatement();
 			break;
 		default:
@@ -521,6 +531,7 @@ public class ProgramModel {
 			factor();
 			break;
 		default:
+			pointer--;
 			constant();
 		}
 	}
@@ -661,8 +672,9 @@ public class ProgramModel {
 
 	}*/
 
-	private void error() {
-
+	private void error(){
+		System.err.println("Syntax error: line " + lineList.get(pointer));
+		System.exit(-1);
 	}
 
 }
