@@ -53,12 +53,16 @@ public class ProgramModel {
 	private ArrayList<Integer> tokenList;
 	private ArrayList<Integer> lineList;
 	private Integer pointer = new Integer(0);
+	private Integer errorLine = new Integer(-1);
 
 	public ProgramModel(ArrayList<Integer> list, ArrayList<Integer> list2) {
 		tokenList = list;
 		lineList = list2;
 	}
-
+	
+	public int getErrorLine() {
+		return errorLine;
+	}
 
 	public void program() {//(1)
 		header();
@@ -369,6 +373,7 @@ public class ProgramModel {
 		case SIDENTIFIER:
 			switch(tokenList.get(pointer++)) {
 			case SLPAREN:
+			case SSEMICOLON:
 				pointer--;
 				pointer--;
 				procedureCallStatement();
@@ -629,7 +634,7 @@ public class ProgramModel {
 			pointer--;
 			unsignedInteger();
 			break;
-		case SIDENTIFIER:
+		case SSTRING:
 			pointer--;
 			string();
 			break;
@@ -638,6 +643,7 @@ public class ProgramModel {
 		case STRUE:
 			break;
 		default:
+			error();
 			break;
 		}
 	}
@@ -673,8 +679,8 @@ public class ProgramModel {
 	}*/
 
 	private void error(){
-		System.err.println("Syntax error: line " + lineList.get(pointer));
-		System.exit(-1);
+		if(errorLine == -1) {
+			errorLine = lineList.get(pointer - 1);
+		}
 	}
-
 }
