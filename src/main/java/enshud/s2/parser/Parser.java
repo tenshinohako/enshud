@@ -44,7 +44,7 @@ public class Parser {
 		try {
 			File inputFile = new File(inputFileName);
 			BufferedReader br = new BufferedReader(new FileReader(inputFile));
-
+			
 			ArrayList<Integer> tokenList = new ArrayList<Integer>();
 			ArrayList<Integer> lineList = new ArrayList<Integer>();
 			String lineBuf;

@@ -59,7 +59,7 @@ public class ProgramModel {
 		tokenList = list;
 		lineList = list2;
 	}
-
+	
 	public int getErrorLine() {
 		return errorLine;
 	}
@@ -122,10 +122,10 @@ public class ProgramModel {
 			if(tokenList.get(pointer++) != SIDENTIFIER) {
 				pointer--;
 				break;
-			}else {
-				pointer--;
-				elementOfSeqOfVarDecls();
-			}
+				}else {
+					pointer--;
+					elementOfSeqOfVarDecls();
+				}
 		}
 	}
 
@@ -373,6 +373,7 @@ public class ProgramModel {
 		case SIDENTIFIER:
 			switch(tokenList.get(pointer++)) {
 			case SLPAREN:
+			case SSEMICOLON:
 				pointer--;
 				pointer--;
 				procedureCallStatement();
@@ -384,7 +385,6 @@ public class ProgramModel {
 				assignmentStatement();
 				break;
 			case SEND:
-			case SSEMICOLON:
 				pointer--;
 				break;
 			default:
@@ -544,10 +544,15 @@ public class ProgramModel {
 	private boolean relationalOpe() {//(40)
 		switch(tokenList.get(pointer++)) {
 		case SEQUAL:
+			return true;
 		case SNOTEQUAL:
+			return true;
 		case SLESS:
+			return true;
 		case SLESSEQUAL:
+			return true;
 		case SGREAT:
+			return true;
 		case SGREATEQUAL:
 			return true;
 		default:
@@ -558,7 +563,9 @@ public class ProgramModel {
 	private boolean additiveOpe() {//(41)
 		switch(tokenList.get(pointer++)) {
 		case SPLUS:
+			return true;
 		case SMINUS:
+			return true;
 		case SOR:
 			return true;
 		default:
@@ -569,8 +576,11 @@ public class ProgramModel {
 	private boolean multiplicativeOpe() {//(42)
 		switch(tokenList.get(pointer++)) {
 		case SSTAR:
+			return true;
 		case SDIVD:
+			return true;
 		case SMOD:
+			return true;
 		case SAND:
 			return true;
 		default:
@@ -670,7 +680,7 @@ public class ProgramModel {
 
 	private void error(){
 		if(errorLine == -1) {
-			errorLine = lineList.get(pointer -1);
+			errorLine = lineList.get(pointer - 1);
 		}
 	}
 }
