@@ -50,22 +50,28 @@ public class ProgramModel {
 	static final int SCONSTANT = 44;
 	static final int SSTRING = 45;
 
-	private ArrayList<String> nameList;
+	private ArrayList<String> wordsList;
 	private ArrayList<Integer> tokenList;
 	private ArrayList<Integer> lineList;
 	private Integer pointer = new Integer(0);
 	private Integer synErrorLine = new Integer(-1);
 	private Integer semErrorLine = new Integer(-1);
+	boolean isPlus;
 
-	public ProgramModel(ArrayList<Integer> list, ArrayList<Integer> list2) {
+	public ProgramModel(ArrayList<Integer> list, ArrayList<Integer> list2, ArrayList<String> list3) {
 		tokenList = list;
 		lineList = list2;
+		wordsList = list3;
 	}
 
-	public int getErrorLine() {
+	public int getSynErrorLine() {
 		return synErrorLine;
 	}
-
+	
+	public int getSemErrorLine() {
+		return semErrorLine;
+	}
+	
 	public void program() {//(1)
 		header();
 		block();
@@ -215,10 +221,13 @@ public class ProgramModel {
 	private void integer() {//(14)
 		switch(tokenList.get(pointer++)) {
 		case SPLUS:
+			isPlus = true;
 			break;
 		case SMINUS:
+			isPlus = false;
 			break;
 		default:
+			isPlus = true;
 			pointer--;
 			break;
 		}
@@ -453,7 +462,74 @@ public class ProgramModel {
 	}*/
 
 	private void suffix() {//(33)
-		formula();
+		suffixFormula();
+	}
+	
+	private void suffixFormula() {
+		suffixPureFormula();
+		if(relationalOpe()) {
+			semError();
+			pureFormula();
+		}else {
+			pointer--;
+		}
+	}
+	
+	private void suffixPureFormula() {
+		switch(tokenList.get(pointer++)) {
+		case SPLUS:
+			isPlus = true;
+			break;
+		case SMINUS:
+			isPlus = false;
+			break;
+		default:
+			isPlus = true;
+			pointer--;
+			break;
+		}
+		suffixTerm();
+		while(true) {
+			if(additiveOpe()) {
+				suffixTerm();
+			}else {
+				pointer--;
+				break;
+			}
+		}
+	}
+	
+	private void suffixTerm() {
+		suffixFactor();
+		while(true) {
+			if(multiplicativeOpe()) {
+				suffixFactor();
+			}else {
+				pointer--;
+				break;
+			}
+		}
+	}
+	
+	private void suffixFactor() {
+		switch(tokenList.get(pointer++)) {
+		case SIDENTIFIER:
+			pointer--;
+			var();
+			break;
+		case SLPAREN:
+			formula();
+			if(tokenList.get(pointer++) != SRPAREN) {
+				synError();
+			}
+			break;
+		case SNOT:
+			factor();
+			break;
+		default:
+			pointer--;
+			constant();
+		}
 	}
 
 	private void procedureCallStatement() {//(34)
@@ -492,10 +568,13 @@ public class ProgramModel {
 	private void pureFormula() {//(37)
 		switch(tokenList.get(pointer++)) {
 		case SPLUS:
+			isPlus = true;
 			break;
 		case SMINUS:
+			isPlus = false;
 			break;
 		default:
+			isPlus = true;
 			pointer--;
 			break;
 		}
@@ -644,6 +723,15 @@ public class ProgramModel {
 		if(tokenList.get(pointer++) != SCONSTANT) {
 			synError();
 		}
+		if(isPlus) {
+			if(Integer.parseInt(wordsList.get(pointer - 1)) > 32767) {
+				semError();
+			}
+		}else {
+			if(Integer.parseInt(wordsList.get(pointer - 1)) > 32768) {
+				semError();
+			}
+		}
 	}
 
 	private void string() {//(47)
@@ -669,6 +757,10 @@ public class ProgramModel {
 /*	private void digit() {//(51)
 
 	}*/
+	
+	//Checker
+	
+	
 
 	private void synError(){
 		if(synErrorLine == -1) {
