@@ -24,14 +24,16 @@ public class Checker {
 		// semerrの確認
 		new Checker().run("data/ts/semerr01.ts");
 		new Checker().run("data/ts/semerr02.ts");
+
+		new Checker().run("data/ts/mytest/numerr.ts");
 	}
 
 	/**
 	 * TODO
-	 * 
+	 *
 	 * 開発対象となるChecker実行メソッド．
 	 * 以下の仕様を満たすこと．
-	 * 
+	 *
 	 * 仕様:
 	 * 第一引数で指定されたtsファイルを読み込み，意味解析を行う．
 	 * 意味的に正しい場合は標準出力に"OK"を，正しくない場合は"Sematic error: line"という文字列とともに，
@@ -39,7 +41,7 @@ public class Checker {
 	 * また，構文的なエラーが含まれる場合もエラーメッセージを表示すること（例： "Syntax error: line 1"）．
 	 * 入力ファイル内に複数のエラーが含まれる場合は，最初に見つけたエラーのみを出力すること．
 	 * 入力ファイルが見つからない場合は標準エラーに"File not found"と出力して終了すること．
-	 * 
+	 *
 	 * @param inputFileName 入力tsファイル名
 	 */
 	public void run(final String inputFileName) {
@@ -48,7 +50,7 @@ public class Checker {
 		try {
 			File inputFile = new File(inputFileName);
 			BufferedReader br = new BufferedReader(new FileReader(inputFile));
-			
+
 			ArrayList<Integer> tokenList = new ArrayList<Integer>();
 			ArrayList<Integer> lineList = new ArrayList<Integer>();
 			ArrayList<String> wordsList = new ArrayList<String>();
@@ -61,17 +63,20 @@ public class Checker {
 			}
 			br.close();
 
-			ProgramModel pm = new ProgramModel(tokenList, lineList, wordsList);
-			pm.program();
+			//ProgramModel pm = new ProgramModel(tokenList, lineList, wordsList);
+			//pm.program();
 
-			if(pm.getSynErrorLine() == -1) {
-				if(pm.getSemErrorLine() == -1) {
+			CheckModel cm = new CheckModel(tokenList, lineList, wordsList);
+			cm.program();
+
+			if(cm.getSynErrorLine() == -1) {
+				if(cm.getSemErrorLine() == -1) {
 					System.out.println("OK");
 				}else {
-					System.err.println("Semantic error: line " + pm.getSemErrorLine());
+					System.err.println("Semantic error: line " + cm.getSemErrorLine());
 				}
 			}else {
-				System.err.println("Syntax error: line " + pm.getSynErrorLine());
+				System.err.println("Syntax error: line " + cm.getSynErrorLine());
 			}
 
 		}catch(FileNotFoundException e){
