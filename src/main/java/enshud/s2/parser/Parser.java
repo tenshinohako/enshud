@@ -55,7 +55,7 @@ public class Parser {
 			}
 			br.close();
 
-			ProgramModel pm = new ProgramModel(tokenList, lineList);
+			ParseModel pm = new ParseModel(tokenList, lineList);
 			pm.program();
 
 			if(pm.getErrorLine() == -1) {

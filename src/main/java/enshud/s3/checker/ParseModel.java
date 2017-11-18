@@ -2,7 +2,7 @@ package enshud.s3.checker;
 
 import java.util.ArrayList;
 
-public class ProgramModel {
+public class ParseModel {
 	static final int SAND = 0;
 	static final int SARRAY = 1;
 	static final int SBEGIN = 2;
@@ -58,7 +58,7 @@ public class ProgramModel {
 	//private Integer semErrorLine = new Integer(-1);
 	//boolean isPlus;
 
-	public ProgramModel(ArrayList<Integer> list, ArrayList<Integer> list2) {
+	public ParseModel(ArrayList<Integer> list, ArrayList<Integer> list2) {
 		tokenList = list;
 		lineList = list2;
 		//wordsList = list3;
@@ -111,12 +111,12 @@ public class ProgramModel {
 		}
 	}
 
-	private void block() {//(4)
+	public void block() {//(4)
 		varDecl();
 		subprogramDecls();
 	}
 
-	private void varDecl() {//(5)
+	public void varDecl() {//(5)
 		if(tokenList.get(pointer++) != SVAR) {
 			pointer--;
 		}else {
@@ -246,7 +246,7 @@ public class ProgramModel {
 		}
 	}*/
 
-	private void subprogramDecls() {//(16)
+	public void subprogramDecls() {//(16)
 		while(true) {
 			if(tokenList.get(pointer++) != SPROCEDURE) {
 				pointer--;
@@ -261,13 +261,13 @@ public class ProgramModel {
 		}
 	}
 
-	private void subprogramDecl() {//(17)
+	public void subprogramDecl() {//(17)
 		subprogramHeader();
 		varDecl();
 		compoundStatement();
 	}
 
-	private void subprogramHeader() {//(18)
+	public void subprogramHeader() {//(18)
 		if(tokenList.get(pointer++) != SPROCEDURE) {
 			synError();
 		}
@@ -329,7 +329,7 @@ public class ProgramModel {
 		name();
 	}
 
-	private void compoundStatement() {//(24)
+	public void compoundStatement() {//(24)
 		if(tokenList.get(pointer++) != SBEGIN) {
 			synError();
 		}
