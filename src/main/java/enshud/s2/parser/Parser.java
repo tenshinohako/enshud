@@ -44,7 +44,7 @@ public class Parser {
 		try {
 			File inputFile = new File(inputFileName);
 			BufferedReader br = new BufferedReader(new FileReader(inputFile));
-
+			
 			ArrayList<Integer> tokenList = new ArrayList<Integer>();
 			ArrayList<Integer> lineList = new ArrayList<Integer>();
 			String lineBuf;
@@ -58,15 +58,16 @@ public class Parser {
 			ProgramModel pm = new ProgramModel(tokenList, lineList);
 			pm.program();
 
-			System.out.println("OK");
-
+			if(pm.getErrorLine() == -1) {
+				System.out.println("OK");
+			}else {
+				System.err.println("Syntax error: line " + pm.getErrorLine());
+			}
 
 		}catch(FileNotFoundException e){
 			System.err.println("File not found");
 		}catch(IOException e) {
 			System.err.println(e);
 		}
-
-
 	}
 }

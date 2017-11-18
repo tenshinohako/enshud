@@ -53,12 +53,16 @@ public class ProgramModel {
 	private ArrayList<Integer> tokenList;
 	private ArrayList<Integer> lineList;
 	private Integer pointer = new Integer(0);
+	private Integer errorLine = new Integer(-1);
 
 	public ProgramModel(ArrayList<Integer> list, ArrayList<Integer> list2) {
 		tokenList = list;
 		lineList = list2;
 	}
 
+	public int getErrorLine() {
+		return errorLine;
+	}
 
 	public void program() {//(1)
 		header();
@@ -118,10 +122,10 @@ public class ProgramModel {
 			if(tokenList.get(pointer++) != SIDENTIFIER) {
 				pointer--;
 				break;
-				}else {
-					pointer--;
-					elementOfSeqOfVarDecls();
-				}
+			}else {
+				pointer--;
+				elementOfSeqOfVarDecls();
+			}
 		}
 	}
 
@@ -369,6 +373,7 @@ public class ProgramModel {
 		case SIDENTIFIER:
 			switch(tokenList.get(pointer++)) {
 			case SLPAREN:
+			case SSEMICOLON:
 				pointer--;
 				pointer--;
 				procedureCallStatement();
@@ -539,15 +544,10 @@ public class ProgramModel {
 	private boolean relationalOpe() {//(40)
 		switch(tokenList.get(pointer++)) {
 		case SEQUAL:
-			return true;
 		case SNOTEQUAL:
-			return true;
 		case SLESS:
-			return true;
 		case SLESSEQUAL:
-			return true;
 		case SGREAT:
-			return true;
 		case SGREATEQUAL:
 			return true;
 		default:
@@ -558,9 +558,7 @@ public class ProgramModel {
 	private boolean additiveOpe() {//(41)
 		switch(tokenList.get(pointer++)) {
 		case SPLUS:
-			return true;
 		case SMINUS:
-			return true;
 		case SOR:
 			return true;
 		default:
@@ -571,11 +569,8 @@ public class ProgramModel {
 	private boolean multiplicativeOpe() {//(42)
 		switch(tokenList.get(pointer++)) {
 		case SSTAR:
-			return true;
 		case SDIVD:
-			return true;
 		case SMOD:
-			return true;
 		case SAND:
 			return true;
 		default:
@@ -629,7 +624,7 @@ public class ProgramModel {
 			pointer--;
 			unsignedInteger();
 			break;
-		case SIDENTIFIER:
+		case SSTRING:
 			pointer--;
 			string();
 			break;
@@ -638,6 +633,7 @@ public class ProgramModel {
 		case STRUE:
 			break;
 		default:
+			error();
 			break;
 		}
 	}
@@ -673,8 +669,8 @@ public class ProgramModel {
 	}*/
 
 	private void error(){
-		System.err.println("Syntax error: line " + lineList.get(pointer));
-		System.exit(-1);
+		if(errorLine == -1) {
+			errorLine = lineList.get(pointer - 1);
+		}
 	}
-
 }
