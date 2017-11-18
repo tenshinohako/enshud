@@ -2,7 +2,7 @@ package enshud.s2.parser;
 
 import java.util.ArrayList;
 
-public class ProgramModel {
+public class ParseModel {
 	static final int SAND = 0;
 	static final int SARRAY = 1;
 	static final int SBEGIN = 2;
@@ -55,7 +55,7 @@ public class ProgramModel {
 	private Integer pointer = new Integer(0);
 	private Integer errorLine = new Integer(-1);
 
-	public ProgramModel(ArrayList<Integer> list, ArrayList<Integer> list2) {
+	public ParseModel(ArrayList<Integer> list, ArrayList<Integer> list2) {
 		tokenList = list;
 		lineList = list2;
 	}

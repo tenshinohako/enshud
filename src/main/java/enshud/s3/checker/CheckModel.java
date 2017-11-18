@@ -2,24 +2,30 @@ package enshud.s3.checker;
 
 import java.util.ArrayList;
 
-public class CheckModel extends ProgramModel{
+public class CheckModel extends ParseModel{
 
 	private ArrayList<String> wordsList;
 	private Integer semErrorLine = new Integer(-1);
 	boolean isPlus;
 
-	private ArrayList<IntegerType> integerList = new ArrayList<IntegerType>();
-	private ArrayList<CharType> charList = new ArrayList<CharType>();
-	private ArrayList<BooleanType> booleanList = new ArrayList<BooleanType>();
+	private ProcedureModel currentProcedure;
+	private ArrayList<ProcedureModel> procedureList = new ArrayList<ProcedureModel>();
 
 	public CheckModel(ArrayList<Integer> list, ArrayList<Integer> list2, ArrayList<String> list3) {
 		super(list, list2);
 		wordsList = list3;
-
 	}
 
 	public int getSemErrorLine() {
 		return semErrorLine;
+	}
+
+	@Override
+	public void block() {//(4)
+		currentProcedure = new ProcedureModel();
+		varDecl();
+		procedureList.add(currentProcedure);
+		subprogramDecls();
 	}
 
 	@Override
@@ -46,41 +52,41 @@ public class CheckModel extends ProgramModel{
 				switch(tokenList.get(pointer + 1)) {
 				case SINTEGER:
 					for(String tempName: tempNameList) {
-						if(!integerList.isEmpty()) {
-							for(IntegerType var: integerList) {
+						if(!currentProcedure.integerList.isEmpty()) {
+							for(IntegerType var: currentProcedure.integerList) {
 								if(var.name.equals(tempName)) {
 									semError();
 									return;
 								}
 							}
 						}
-						integerList.add(new IntegerType(tempName));
+						currentProcedure.integerList.add(new IntegerType(tempName));
 					}
 					break;
 				case SCHAR:
 					for(String tempName: tempNameList) {
-						if(!charList.isEmpty()) {
-							for(CharType var: charList) {
+						if(!currentProcedure.charList.isEmpty()) {
+							for(CharType var: currentProcedure.charList) {
 								if(var.name.equals(tempName)) {
 									semError();
 									return;
 								}
 							}
 						}
-						charList.add(new CharType(tempName));
+						currentProcedure.charList.add(new CharType(tempName));
 					}
 					break;
 				case SBOOLEAN:
 					for(String tempName: tempNameList) {
-						if(!booleanList.isEmpty()) {
-							for(BooleanType var: booleanList) {
+						if(!currentProcedure.booleanList.isEmpty()) {
+							for(BooleanType var: currentProcedure.booleanList) {
 								if(var.name.equals(tempName)) {
 									semError();
 									return;
 								}
 							}
 						}
-						booleanList.add(new BooleanType(tempName));
+						currentProcedure.booleanList.add(new BooleanType(tempName));
 					}
 					break;
 				}
@@ -107,6 +113,15 @@ public class CheckModel extends ProgramModel{
 			break;
 		}
 		unsignedInteger();
+	}
+
+	@Override
+	public void subprogramDecl() {//(17)
+		currentProcedure = new ProcedureModel();
+		subprogramHeader();
+		varDecl();
+		compoundStatement();
+		procedureList.add(currentProcedure);
 	}
 
 	@Override
@@ -226,42 +241,5 @@ public class CheckModel extends ProgramModel{
 		if(semErrorLine == -1) {
 			semErrorLine = lineList.get(pointer - 1);
 		}
-	}
-}
-
-class IntegerType{
-	String name;
-	int value;
-	public IntegerType(String name) {
-
-	}
-}
-
-class CharType{
-	String name;
-	char value;
-	public CharType(String name) {
-
-	}
-}
-
-class BooleanType{
-	String name;
-	boolean value;
-	BooleanType(String name){
-
-	}
-}
-
-class ArrayType{
-	String name;
-	String type;
-	int min;
-	int max;
-	ArrayList<Integer> intList;
-	ArrayList<Character> charList;
-	ArrayList<Boolean> booleanList;
-	ArrayType(String name, String type, int min, int max){
-
 	}
 }
