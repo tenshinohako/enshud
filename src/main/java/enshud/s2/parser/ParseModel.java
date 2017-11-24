@@ -166,7 +166,7 @@ public class ParseModel {
 		}
 	}
 
-	private void standardType() {//(10)
+	protected void standardType() {//(10)
 		switch(tokenList.get(pointer++)) {
 		case SINTEGER:
 			break;
@@ -180,7 +180,7 @@ public class ParseModel {
 		}
 	}
 
-	private void arrayType() {//(11)
+	protected void arrayType() {//(11)
 		if(tokenList.get(pointer++) != SARRAY) {
 			synError();
 		}else {
@@ -202,11 +202,11 @@ public class ParseModel {
 		}
 	}
 
-	private void minSuffix() {//(12)
+	protected void minSuffix() {//(12)
 		integer();
 	}
 
-	private void maxSuffix() {//(13)
+	protected void maxSuffix() {//(13)
 		integer();
 	}
 
@@ -302,7 +302,7 @@ public class ParseModel {
 		standardType();
 	}
 
-	private void seqOfTempParameterNames() {//(22)
+	protected void seqOfTempParameterNames() {//(22)
 		tempParameterName();
 		while(true) {
 			if(tokenList.get(pointer++) != SCOMMA) {
@@ -314,7 +314,7 @@ public class ParseModel {
 		}
 	}
 
-	private void tempParameterName() {//(23)
+	protected void tempParameterName() {//(23)
 		name();
 	}
 

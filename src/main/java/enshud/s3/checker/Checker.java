@@ -14,18 +14,22 @@ public class Checker {
 	 */
 	public static void main(final String[] args) {
 		// normalの確認
-		new Checker().run("data/ts/normal01.ts");
-		new Checker().run("data/ts/normal02.ts");
+		//new Checker().run("data/ts/normal01.ts");
+		//new Checker().run("data/ts/normal02.ts");
+
+
+		new Checker().run("data/ts/normal05.ts");
+		new Checker().run("data/ts/normal08.ts");
 
 		// synerrの確認
-		new Checker().run("data/ts/synerr01.ts");
-		new Checker().run("data/ts/synerr02.ts");
+		//new Checker().run("data/ts/synerr01.ts");
+		//new Checker().run("data/ts/synerr02.ts");
 
 		// semerrの確認
-		new Checker().run("data/ts/semerr01.ts");
-		new Checker().run("data/ts/semerr02.ts");
+		//new Checker().run("data/ts/semerr01.ts");
+		//new Checker().run("data/ts/semerr02.ts");
 
-		new Checker().run("data/ts/mytest/numerr.ts");
+		//new Checker().run("data/ts/mytest/numerr.ts");
 	}
 
 	/**

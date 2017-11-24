@@ -12,7 +12,7 @@ public class CheckModel extends ParseModel{
 
 	private ProcedureModel currentProcedure;
 	private ArrayList<ProcedureModel> procedureList = new ArrayList<ProcedureModel>();
-
+	ArrayList<String> tempNameList;
 	public CheckModel(ArrayList<Integer> list, ArrayList<Integer> list2, ArrayList<String> list3) {
 		super(list, list2);
 		wordsList = list3;
@@ -32,58 +32,125 @@ public class CheckModel extends ParseModel{
 
 	@Override
 	protected void seqOfVarNames() {//(7)
-		ArrayList<String> tempNameList = new ArrayList<String>();
+		tempNameList = new ArrayList<String>();
 		varName();
 		tempNameList.add(wordsList.get(pointer - 1));
 
 		while(true) {
 			if(tokenList.get(pointer++) != SCOMMA) {
 				pointer--;
+				/*
 				switch(tokenList.get(pointer + 1)) {
 				case SINTEGER:
 					for(String tempName: tempNameList) {
-						if(!currentProcedure.integerList.isEmpty()) {
-							for(IntegerType var: currentProcedure.integerList) {
-								if(var.name.equals(tempName)) {
-									semError();
-									return;
-								}
-							}
+						if(!currentProcedure.addToList(new IntegerType(tempName))) {
+							semError();
 						}
-						currentProcedure.integerList.add(new IntegerType(tempName));
 					}
 					break;
 				case SCHAR:
 					for(String tempName: tempNameList) {
-						if(!currentProcedure.charList.isEmpty()) {
-							for(CharType var: currentProcedure.charList) {
-								if(var.name.equals(tempName)) {
-									semError();
-									return;
-								}
-							}
+						if(!currentProcedure.addToList(new CharType(tempName))) {
+							semError();
 						}
-						currentProcedure.charList.add(new CharType(tempName));
 					}
 					break;
 				case SBOOLEAN:
 					for(String tempName: tempNameList) {
-						if(!currentProcedure.booleanList.isEmpty()) {
-							for(BooleanType var: currentProcedure.booleanList) {
-								if(var.name.equals(tempName)) {
-									semError();
-									return;
-								}
-							}
+						if(!currentProcedure.addToList(new BooleanType(tempName))) {
+							semError();
 						}
-						currentProcedure.booleanList.add(new BooleanType(tempName));
 					}
 					break;
-				}
+				case SARRAY:
+					int varType = tokenList.get(pointer + 8);
+					int minSuffix = Integer.parseInt(wordsList.get(pointer + 3));
+					int maxSuffix = Integer.parseInt(wordsList.get(pointer + 5));
+					for(String tempName: tempNameList) {
+						if(!currentProcedure.addToList(
+								new ArrayType(tempName, varType, minSuffix, maxSuffix))) {
+							semError();
+						}
+					}
+					break;
+				}*/
 				break;
 			}else {
 				varName();
 				tempNameList.add(wordsList.get(pointer - 1));
+			}
+		}
+	}
+
+	@Override
+	protected void standardType() {//(10)
+		switch(tokenList.get(pointer++)) {
+		case SINTEGER:
+			for(String tempName: tempNameList) {
+				if(!currentProcedure.addToList(new IntegerType(tempName))) {
+					semError();
+				}
+			}
+			break;
+		case SCHAR:
+			for(String tempName: tempNameList) {
+				if(!currentProcedure.addToList(new CharType(tempName))) {
+					semError();
+				}
+			}
+			break;
+		case SBOOLEAN:
+			for(String tempName: tempNameList) {
+				if(!currentProcedure.addToList(new BooleanType(tempName))) {
+					semError();
+				}
+			}
+			break;
+		default:
+			synError();
+			break;
+		}
+	}
+
+	@Override
+	protected void arrayType() {//(11)
+		int minSuffix;
+		int maxSuffix;
+		if(tokenList.get(pointer++) != SARRAY) {
+			synError();
+		}else {
+			if(tokenList.get(pointer++) != SLBRACKET) {
+				synError();
+			}
+			minSuffix();
+			try {
+				minSuffix = Integer.parseInt(wordsList.get(pointer - 1));
+			}catch(NumberFormatException e) {
+				minSuffix = 0;
+			}
+			if(tokenList.get(pointer++) != SRANGE) {
+				synError();
+			}
+			maxSuffix();
+			try {
+				maxSuffix = Integer.parseInt(wordsList.get(pointer - 1));
+			}catch(NumberFormatException e) {
+				maxSuffix = 0;
+			}
+
+			if(tokenList.get(pointer++) != SRBRACKET) {
+				synError();
+			}
+			if(tokenList.get(pointer++) != SOF) {
+				synError();
+			}
+			super.standardType();
+			int varType = tokenList.get(pointer - 1);
+			for(String tempName: tempNameList) {
+				if(!currentProcedure.addToList(
+						new ArrayType(tempName, varType, minSuffix, maxSuffix))) {
+					semError();
+				}
 			}
 		}
 	}
@@ -113,9 +180,34 @@ public class CheckModel extends ParseModel{
 	}
 
 	@Override
+	protected void seqOfTempParameterNames() {//(22)
+		tempNameList = new ArrayList<String>();
+		tempParameterName();
+		tempNameList.add(wordsList.get(pointer - 1));
+
+		while(true) {
+			if(tokenList.get(pointer++) != SCOMMA) {
+				pointer--;
+				break;
+			}else {
+				tempParameterName();
+				tempNameList.add(wordsList.get(pointer - 1));
+			}
+		}
+	}
+
+	@Override
 	protected void var() {//(30)
-		//
 		varName();
+		if(!currentProcedure.existsInProcedure(wordsList.get(pointer - 1))) {
+			if(currentProcedure != procedureList.get(0)) {
+				if(!procedureList.get(0).existsInProcedure(wordsList.get(pointer - 1))){
+					semError();
+				}
+			}else {
+				semError();
+			}
+		}
 		if(tokenList.get(pointer++) != SLBRACKET) {
 			pointer--;
 		}else {
@@ -124,7 +216,6 @@ public class CheckModel extends ParseModel{
 				synError();
 			}
 		}
-		//
 	}
 
 	@Override
@@ -159,12 +250,20 @@ public class CheckModel extends ParseModel{
 			return;
 		}
 		if(isPlus) {
-			if(Integer.parseInt(wordsList.get(pointer - 1)) > 32767) {
-				semError();
+			try {
+				if(Integer.parseInt(wordsList.get(pointer - 1)) > 32767) {
+					semError();
+				}
+			}catch(NumberFormatException e) {
+
 			}
 		}else {
-			if(Integer.parseInt(wordsList.get(pointer - 1)) > 32768) {
-				semError();
+			try {
+				if(Integer.parseInt(wordsList.get(pointer - 1)) > 32768) {
+					semError();
+				}
+			}catch(NumberFormatException e) {
+
 			}
 		}
 	}
@@ -242,7 +341,7 @@ public class CheckModel extends ParseModel{
 
 	private void semError() {
 		if(semErrorLine == -1) {
-			semErrorLine = lineList.get(pointer - 1);
+			semErrorLine = lineList.get(pointer);
 		}
 	}
 }
