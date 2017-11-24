@@ -7,7 +7,6 @@ public class ProcedureModel {
 	public ArrayList<CharType> charList = new ArrayList<CharType>();
 	public ArrayList<BooleanType> booleanList = new ArrayList<BooleanType>();
 
-
 }
 
 class IntegerType{
@@ -54,7 +53,8 @@ class ArrayType{
 	ArrayList<Integer> intList;
 	ArrayList<Character> charList;
 	ArrayList<Boolean> booleanList;
-	ArrayType(String name, String type, int min, int max){
+	public ArrayType(String name, String type, int min, int max){
+		this.name = name;
 
 	}
 }

@@ -213,13 +213,10 @@ public class ParseModel {
 	protected void integer() {//(14)
 		switch(tokenList.get(pointer++)) {
 		case SPLUS:
-			//isPlus = true;
 			break;
 		case SMINUS:
-			//isPlus = false;
 			break;
 		default:
-			//isPlus = true;
 			pointer--;
 			break;
 		}
@@ -259,7 +256,7 @@ public class ParseModel {
 		compoundStatement();
 	}
 
-	protected void subprogramHeader() {//(18)
+	private void subprogramHeader() {//(18)
 		if(tokenList.get(pointer++) != SPROCEDURE) {
 			synError();
 		}
@@ -321,7 +318,7 @@ public class ParseModel {
 		name();
 	}
 
-	protected void compoundStatement() {//(24)
+	private void compoundStatement() {//(24)
 		if(tokenList.get(pointer++) != SBEGIN) {
 			synError();
 		}
@@ -493,13 +490,10 @@ public class ParseModel {
 	protected void pureFormula() {//(37)
 		switch(tokenList.get(pointer++)) {
 		case SPLUS:
-			//isPlus = true;
 			break;
 		case SMINUS:
-			//isPlus = false;
 			break;
 		default:
-			//isPlus = true;
 			pointer--;
 			break;
 		}
@@ -643,21 +637,6 @@ public class ParseModel {
 			break;
 		}
 	}
-
-/*	private void unsignedInteger() {//(46)
-		if(tokenList.get(pointer++) != SCONSTANT) {
-			synError();
-		}
-		if(isPlus) {
-			if(Integer.parseInt(wordsList.get(pointer - 1)) > 32767) {
-				semError();
-			}
-		}else {
-			if(Integer.parseInt(wordsList.get(pointer - 1)) > 32768) {
-				semError();
-			}
-		}
-	}*/
 
 	protected void unsignedInteger() {//(46)
 		if(tokenList.get(pointer++) != SCONSTANT) {

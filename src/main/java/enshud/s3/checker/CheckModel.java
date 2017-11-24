@@ -31,18 +31,6 @@ public class CheckModel extends ParseModel{
 	}
 
 	@Override
-	protected void elementOfSeqOfVarDecls() {
-		seqOfVarNames();
-		if(tokenList.get(pointer++) != SCOLON) {
-			synError();
-		}
-		type();
-		if(tokenList.get(pointer++) != SSEMICOLON) {
-			synError();
-		}
-	}
-
-	@Override
 	protected void seqOfVarNames() {//(7)
 		ArrayList<String> tempNameList = new ArrayList<String>();
 		varName();
@@ -120,10 +108,23 @@ public class CheckModel extends ParseModel{
 	@Override
 	protected void subprogramDecl() {//(17)
 		currentProcedure = new ProcedureModel();
-		subprogramHeader();
-		varDecl();
-		compoundStatement();
+		super.subprogramDecl();
 		procedureList.add(currentProcedure);
+	}
+
+	@Override
+	protected void var() {//(30)
+		//
+		varName();
+		if(tokenList.get(pointer++) != SLBRACKET) {
+			pointer--;
+		}else {
+			suffix();
+			if(tokenList.get(pointer++) != SRBRACKET) {
+				synError();
+			}
+		}
+		//
 	}
 
 	@Override
