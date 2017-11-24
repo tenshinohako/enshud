@@ -111,12 +111,12 @@ public class ParseModel {
 		}
 	}
 
-	public void block() {//(4)
+	protected void block() {//(4)
 		varDecl();
 		subprogramDecls();
 	}
 
-	public void varDecl() {//(5)
+	protected void varDecl() {//(5)
 		if(tokenList.get(pointer++) != SVAR) {
 			pointer--;
 		}else {
@@ -137,7 +137,7 @@ public class ParseModel {
 		}
 	}
 
-	public void elementOfSeqOfVarDecls() {
+	protected void elementOfSeqOfVarDecls() {
 		seqOfVarNames();
 		if(tokenList.get(pointer++) != SCOLON) {
 			synError();
@@ -148,7 +148,7 @@ public class ParseModel {
 		}
 	}
 
-	public void seqOfVarNames() {//(7)
+	protected void seqOfVarNames() {//(7)
 		varName();
 		while(true) {
 			if(tokenList.get(pointer++) != SCOMMA) {
@@ -160,11 +160,11 @@ public class ParseModel {
 		}
 	}
 
-	public void varName() {//(8)
+	protected void varName() {//(8)
 		name();
 	}
 
-	public void type() {//(9)
+	protected void type() {//(9)
 		if(tokenList.get(pointer++) != SARRAY) {
 			pointer--;
 			standardType();
@@ -218,7 +218,7 @@ public class ParseModel {
 		integer();
 	}
 
-	public void integer() {//(14)
+	protected void integer() {//(14)
 		switch(tokenList.get(pointer++)) {
 		case SPLUS:
 			//isPlus = true;
@@ -246,7 +246,7 @@ public class ParseModel {
 		}
 	}*/
 
-	public void subprogramDecls() {//(16)
+	protected void subprogramDecls() {//(16)
 		while(true) {
 			if(tokenList.get(pointer++) != SPROCEDURE) {
 				pointer--;
@@ -261,13 +261,13 @@ public class ParseModel {
 		}
 	}
 
-	public void subprogramDecl() {//(17)
+	protected void subprogramDecl() {//(17)
 		subprogramHeader();
 		varDecl();
 		compoundStatement();
 	}
 
-	public void subprogramHeader() {//(18)
+	protected void subprogramHeader() {//(18)
 		if(tokenList.get(pointer++) != SPROCEDURE) {
 			synError();
 		}
@@ -329,7 +329,7 @@ public class ParseModel {
 		name();
 	}
 
-	public void compoundStatement() {//(24)
+	protected void compoundStatement() {//(24)
 		if(tokenList.get(pointer++) != SBEGIN) {
 			synError();
 		}
@@ -434,7 +434,7 @@ public class ParseModel {
 		var();
 	}
 
-	public void var() {//(30)
+	protected void var() {//(30)
 		varName();
 		if(tokenList.get(pointer++) != SLBRACKET) {
 			pointer--;
@@ -461,7 +461,7 @@ public class ParseModel {
 		}
 	}*/
 
-	public void suffix() {//(33)
+	protected void suffix() {//(33)
 		formula();
 		//suffixFormula();
 	}
@@ -557,7 +557,7 @@ public class ParseModel {
 		}
 	}
 
-	public void formula() {//(36)
+	protected void formula() {//(36)
 		pureFormula();
 		if(relationalOpe()) {
 			pureFormula();
@@ -566,7 +566,7 @@ public class ParseModel {
 		}
 	}
 
-	public void pureFormula() {//(37)
+	protected void pureFormula() {//(37)
 		switch(tokenList.get(pointer++)) {
 		case SPLUS:
 			//isPlus = true;
@@ -590,7 +590,7 @@ public class ParseModel {
 		}
 	}
 
-	public void term() {//(38)
+	protected void term() {//(38)
 		factor();
 		while(true) {
 			if(multiplicativeOpe()) {
@@ -602,7 +602,7 @@ public class ParseModel {
 		}
 	}
 
-	public void factor() {//(39)
+	protected void factor() {//(39)
 		switch(tokenList.get(pointer++)) {
 		case SIDENTIFIER:
 			pointer--;
@@ -623,7 +623,7 @@ public class ParseModel {
 		}
 	}
 
-	public boolean relationalOpe() {//(40)
+	protected boolean relationalOpe() {//(40)
 		switch(tokenList.get(pointer++)) {
 		case SEQUAL:
 		case SNOTEQUAL:
@@ -637,7 +637,7 @@ public class ParseModel {
 		}
 	}
 
-	public boolean additiveOpe() {//(41)
+	protected boolean additiveOpe() {//(41)
 		switch(tokenList.get(pointer++)) {
 		case SPLUS:
 		case SMINUS:
@@ -648,7 +648,7 @@ public class ParseModel {
 		}
 	}
 
-	public boolean multiplicativeOpe() {//(42)
+	protected boolean multiplicativeOpe() {//(42)
 		switch(tokenList.get(pointer++)) {
 		case SSTAR:
 		case SDIVD:
@@ -700,7 +700,7 @@ public class ParseModel {
 		}
 	}
 
-	public void constant() {//(45)
+	protected void constant() {//(45)
 		switch(tokenList.get(pointer++)) {
 		case SCONSTANT:
 			pointer--;
@@ -735,7 +735,7 @@ public class ParseModel {
 		}
 	}*/
 
-	public void unsignedInteger() {//(46)
+	protected void unsignedInteger() {//(46)
 		if(tokenList.get(pointer++) != SCONSTANT) {
 			synError();
 		}
@@ -766,7 +766,7 @@ public class ParseModel {
 	}*/
 
 
-	public void synError(){
+	protected void synError(){
 		if(synErrorLine == -1) {
 			synErrorLine = lineList.get(pointer - 1);
 		}

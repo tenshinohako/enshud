@@ -1,6 +1,7 @@
 package enshud.s3.checker;
 
 import java.util.ArrayList;
+//import enshud.s2.parser.ParseModel;
 
 public class CheckModel extends ParseModel{
 
@@ -21,7 +22,7 @@ public class CheckModel extends ParseModel{
 	}
 
 	@Override
-	public void block() {//(4)
+	protected void block() {//(4)
 		currentProcedure = new ProcedureModel();
 		varDecl();
 		procedureList.add(currentProcedure);
@@ -29,7 +30,7 @@ public class CheckModel extends ParseModel{
 	}
 
 	@Override
-	public void elementOfSeqOfVarDecls() {
+	protected void elementOfSeqOfVarDecls() {
 		seqOfVarNames();
 		if(tokenList.get(pointer++) != SCOLON) {
 			synError();
@@ -41,7 +42,7 @@ public class CheckModel extends ParseModel{
 	}
 
 	@Override
-	public void seqOfVarNames() {//(7)
+	protected void seqOfVarNames() {//(7)
 		ArrayList<String> tempNameList = new ArrayList<String>();
 		varName();
 		tempNameList.add(wordsList.get(pointer - 1));
@@ -99,7 +100,7 @@ public class CheckModel extends ParseModel{
 	}
 
 	@Override
-	public void integer() {//(14)
+	protected void integer() {//(14)
 		switch(tokenList.get(pointer++)) {
 		case SPLUS:
 			isPlus = true;
@@ -116,7 +117,7 @@ public class CheckModel extends ParseModel{
 	}
 
 	@Override
-	public void subprogramDecl() {//(17)
+	protected void subprogramDecl() {//(17)
 		currentProcedure = new ProcedureModel();
 		subprogramHeader();
 		varDecl();
@@ -125,7 +126,7 @@ public class CheckModel extends ParseModel{
 	}
 
 	@Override
-	public void pureFormula() {//(37)
+	protected void pureFormula() {//(37)
 		switch(tokenList.get(pointer++)) {
 		case SPLUS:
 			isPlus = true;
@@ -150,7 +151,7 @@ public class CheckModel extends ParseModel{
 	}
 
 	@Override
-	public void unsignedInteger() {//(46)
+	protected void unsignedInteger() {//(46)
 		if(tokenList.get(pointer++) != SCONSTANT) {
 			synError();
 			return;
@@ -166,7 +167,7 @@ public class CheckModel extends ParseModel{
 		}
 	}
 	@Override
-	public void suffix() {//(33)
+	protected void suffix() {//(33)
 		suffixFormula();
 	}
 
