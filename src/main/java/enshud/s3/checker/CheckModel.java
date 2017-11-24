@@ -1,7 +1,8 @@
 package enshud.s3.checker;
 
 import java.util.ArrayList;
-//import enshud.s2.parser.ParseModel;
+
+import enshud.s2.parser.ParseModel;
 
 public class CheckModel extends ParseModel{
 

@@ -3,65 +3,65 @@ package enshud.s2.parser;
 import java.util.ArrayList;
 
 public class ParseModel {
-	static final int SAND = 0;
-	static final int SARRAY = 1;
-	static final int SBEGIN = 2;
-	static final int SBOOLEAN = 3;
-	static final int SCHAR = 4;
-	static final int SDIVD = 5;
-	static final int SDO = 6;
-	static final int SELSE = 7;
-	static final int SEND = 8;
-	static final int SFALSE = 9;
-	static final int SIF = 10;
-	static final int SINTEGER = 11;
-	static final int SMOD = 12;
-	static final int SNOT = 13;
-	static final int SOF = 14;
-	static final int SOR = 15;
-	static final int SPROCEDURE = 16;
-	static final int SPROGRAM = 17;
-	static final int SREADLN = 18;
-	static final int STHEN = 19;
-	static final int STRUE = 20;
-	static final int SVAR = 21;
-	static final int SWHILE = 22;
-	static final int SWRITELN = 23;
-	static final int SEQUAL = 24;
-	static final int SNOTEQUAL = 25;
-	static final int SLESS = 26;
-	static final int SLESSEQUAL = 27;
-	static final int SGREATEQUAL = 28;
-	static final int SGREAT = 29;
-	static final int SPLUS = 30;
-	static final int SMINUS = 31;
-	static final int SSTAR = 32;
-	static final int SLPAREN = 33;
-	static final int SRPAREN = 34;
-	static final int SLBRACKET = 35;
-	static final int SRBRACKET = 36;
-	static final int SSEMICOLON = 37;
-	static final int SCOLON = 38;
-	static final int SRANGE = 39;
-	static final int SASSIGN = 40;
-	static final int SCOMMA = 41;
-	static final int SDOT = 42;
-	static final int SIDENTIFIER = 43;
-	static final int SCONSTANT = 44;
-	static final int SSTRING = 45;
+	protected static final int SAND = 0;
+	protected static final int SARRAY = 1;
+	protected static final int SBEGIN = 2;
+	protected static final int SBOOLEAN = 3;
+	protected static final int SCHAR = 4;
+	protected static final int SDIVD = 5;
+	protected static final int SDO = 6;
+	protected static final int SELSE = 7;
+	protected static final int SEND = 8;
+	protected static final int SFALSE = 9;
+	protected static final int SIF = 10;
+	protected static final int SINTEGER = 11;
+	protected static final int SMOD = 12;
+	protected static final int SNOT = 13;
+	protected static final int SOF = 14;
+	protected static final int SOR = 15;
+	protected static final int SPROCEDURE = 16;
+	protected static final int SPROGRAM = 17;
+	protected static final int SREADLN = 18;
+	protected static final int STHEN = 19;
+	protected static final int STRUE = 20;
+	protected static final int SVAR = 21;
+	protected static final int SWHILE = 22;
+	protected static final int SWRITELN = 23;
+	protected static final int SEQUAL = 24;
+	protected static final int SNOTEQUAL = 25;
+	protected static final int SLESS = 26;
+	protected static final int SLESSEQUAL = 27;
+	protected static final int SGREATEQUAL = 28;
+	protected static final int SGREAT = 29;
+	protected static final int SPLUS = 30;
+	protected static final int SMINUS = 31;
+	protected static final int SSTAR = 32;
+	protected static final int SLPAREN = 33;
+	protected static final int SRPAREN = 34;
+	protected static final int SLBRACKET = 35;
+	protected static final int SRBRACKET = 36;
+	protected static final int SSEMICOLON = 37;
+	protected static final int SCOLON = 38;
+	protected static final int SRANGE = 39;
+	protected static final int SASSIGN = 40;
+	protected static final int SCOMMA = 41;
+	protected static final int SDOT = 42;
+	protected static final int SIDENTIFIER = 43;
+	protected static final int SCONSTANT = 44;
+	protected static final int SSTRING = 45;
 
-	private ArrayList<Integer> tokenList;
-	private ArrayList<Integer> lineList;
-	private Integer pointer = new Integer(0);
-	private Integer errorLine = new Integer(-1);
+	protected ArrayList<Integer> tokenList;
+	protected ArrayList<Integer> lineList;
+	protected Integer pointer = new Integer(0);
+	protected Integer synErrorLine = new Integer(-1);
 
 	public ParseModel(ArrayList<Integer> list, ArrayList<Integer> list2) {
 		tokenList = list;
 		lineList = list2;
 	}
 
-	public int getErrorLine() {
-		return errorLine;
+	public int getSynErrorLine() {
+		return synErrorLine;
 	}
 
 	public void program() {//(1)
@@ -72,18 +72,18 @@ public class ParseModel {
 
 	private void header() {
 		if(tokenList.get(pointer++) != SPROGRAM) {
-			error();
+			synError();
 		}
 		programName();
 		if(tokenList.get(pointer++) != SLPAREN) {
-			error();
+			synError();
 		}
 		seqOfNames();
 		if(tokenList.get(pointer++) != SRPAREN) {
-			error();
+			synError();
 		}
 		if(tokenList.get(pointer++) != SSEMICOLON) {
-			error();
+			synError();
 		}
 	}
 
@@ -103,12 +103,12 @@ public class ParseModel {
 		}
 	}
 
-	private void block() {//(4)
+	protected void block() {//(4)
 		varDecl();
 		subprogramDecls();
 	}
 
-	private void varDecl() {//(5)
+	protected void varDecl() {//(5)
 		if(tokenList.get(pointer++) != SVAR) {
 			pointer--;
 		}else {
@@ -129,18 +129,18 @@ public class ParseModel {
 		}
 	}
 
-	private void elementOfSeqOfVarDecls() {
+	protected void elementOfSeqOfVarDecls() {
 		seqOfVarNames();
 		if(tokenList.get(pointer++) != SCOLON) {
-			error();
+			synError();
 		}
 		type();
 		if(tokenList.get(pointer++) != SSEMICOLON) {
-			error();
+			synError();
 		}
 	}
 
-	private void seqOfVarNames() {//(7)
+	protected void seqOfVarNames() {//(7)
 		varName();
 		while(true) {
 			if(tokenList.get(pointer++) != SCOMMA) {
@@ -152,11 +152,11 @@ public class ParseModel {
 		}
 	}
 
-	private void varName() {//(8)
+	protected void varName() {//(8)
 		name();
 	}
 
-	private void type() {//(9)
+	protected void type() {//(9)
 		if(tokenList.get(pointer++) != SARRAY) {
 			pointer--;
 			standardType();
@@ -175,48 +175,51 @@ public class ParseModel {
 		case SBOOLEAN:
 			break;
 		default:
-			error();
+			synError();
 			break;
 		}
 	}
 
 	private void arrayType() {//(11)
 		if(tokenList.get(pointer++) != SARRAY) {
-			error();
+			synError();
 		}else {
 			if(tokenList.get(pointer++) != SLBRACKET) {
-				error();
-			}
-			maxSuffix();
-			if(tokenList.get(pointer++) != SRANGE) {
-				error();
+				synError();
 			}
 			minSuffix();
+			if(tokenList.get(pointer++) != SRANGE) {
+				synError();
+			}
+			maxSuffix();
 			if(tokenList.get(pointer++) != SRBRACKET) {
-				error();
+				synError();
 			}
 			if(tokenList.get(pointer++) != SOF) {
-				error();
+				synError();
 			}
 			standardType();
 		}
 	}
 
-	private void maxSuffix() {//(12)
+	private void minSuffix() {//(12)
 		integer();
 	}
 
-	private void minSuffix() {//(13)
+	private void maxSuffix() {//(13)
 		integer();
 	}
 
-	private void integer() {//(14)
+	protected void integer() {//(14)
 		switch(tokenList.get(pointer++)) {
 		case SPLUS:
+			//isPlus = true;
 			break;
 		case SMINUS:
+			//isPlus = false;
 			break;
 		default:
+			//isPlus = true;
 			pointer--;
 			break;
 		}
@@ -230,12 +233,12 @@ public class ParseModel {
 		case SMINUS:
 			break;
 		default:
-			error();
+			synError();
 			break;
 		}
 	}*/
 
-	private void subprogramDecls() {//(16)
+	protected void subprogramDecls() {//(16)
 		while(true) {
 			if(tokenList.get(pointer++) != SPROCEDURE) {
 				pointer--;
@@ -244,26 +247,26 @@ public class ParseModel {
 				pointer--;
 				subprogramDecl();
 				if(tokenList.get(pointer++) != SSEMICOLON) {
-					error();
+					synError();
 				}
 			}
 		}
 	}
 
-	private void subprogramDecl() {//(17)
+	protected void subprogramDecl() {//(17)
 		subprogramHeader();
 		varDecl();
 		compoundStatement();
 	}
 
-	private void subprogramHeader() {//(18)
+	protected void subprogramHeader() {//(18)
 		if(tokenList.get(pointer++) != SPROCEDURE) {
-			error();
+			synError();
 		}
 		procedureName();
 		tempParameter();
 		if(tokenList.get(pointer++) != SSEMICOLON) {
-			error();
+			synError();
 		}
 	}
 
@@ -277,7 +280,7 @@ public class ParseModel {
 		}else {
 			seqOfTempParameters();
 			if(tokenList.get(pointer++) != SRPAREN) {
-				error();
+				synError();
 			}
 		}
 	}
@@ -297,7 +300,7 @@ public class ParseModel {
 	private void elementOfSeqOfTempParameters() {
 		seqOfTempParameterNames();
 		if(tokenList.get(pointer++) != SCOLON) {
-			error();
+			synError();
 		}
 		standardType();
 	}
@@ -318,13 +321,13 @@ public class ParseModel {
 		name();
 	}
 
-	private void compoundStatement() {//(24)
+	protected void compoundStatement() {//(24)
 		if(tokenList.get(pointer++) != SBEGIN) {
-			error();
+			synError();
 		}
 		seqOfStatements();
 		if(tokenList.get(pointer++) != SEND) {
-			error();
+			synError();
 		}
 	}
 
@@ -345,7 +348,7 @@ public class ParseModel {
 		case SIF:
 			formula();
 			if(tokenList.get(pointer++) != STHEN) {
-				error();
+				synError();
 			}
 			compoundStatement();
 			if(tokenList.get(pointer++) != SELSE) {
@@ -357,7 +360,7 @@ public class ParseModel {
 		case SWHILE:
 			formula();
 			if(tokenList.get(pointer++) != SDO) {
-				error();
+				synError();
 			}
 			statement();
 			break;
@@ -388,7 +391,7 @@ public class ParseModel {
 				pointer--;
 				break;
 			default:
-				error();
+				synError();
 				break;
 			}
 			break;
@@ -405,7 +408,7 @@ public class ParseModel {
 			compoundStatement();
 			break;
 		default:
-			error();
+			synError();
 			break;
 		}
 
@@ -414,7 +417,7 @@ public class ParseModel {
 	private void assignmentStatement() {//(28)
 		leftSide();
 		if(tokenList.get(pointer++) != SASSIGN) {
-			error();
+			synError();
 		}
 		formula();
 	}
@@ -423,14 +426,14 @@ public class ParseModel {
 		var();
 	}
 
-	private void var() {//(30)
+	protected void var() {//(30)
 		varName();
 		if(tokenList.get(pointer++) != SLBRACKET) {
 			pointer--;
 		}else {
 			suffix();
 			if(tokenList.get(pointer++) != SRBRACKET) {
-				error();
+				synError();
 			}
 		}
 	}
@@ -442,15 +445,15 @@ public class ParseModel {
 /*	private void varWithSuffix() {//(32)
 		varName();
 		if(tokenList.get(pointer++) != SLBRACKET) {
-			error();
+			synError();
 		}
 		suffix();
 		if(tokenList.get(pointer++) != SRBRACKET) {
-			error();
+			synError();
 		}
 	}*/
 
-	private void suffix() {//(33)
+	protected void suffix() {//(33)
 		formula();
 	}
 
@@ -461,7 +464,7 @@ public class ParseModel {
 		}else {
 			seqOfFormulae();
 			if(tokenList.get(pointer++) != SRPAREN) {
-				error();
+				synError();
 			}
 		}
 	}
@@ -478,7 +481,7 @@ public class ParseModel {
 		}
 	}
 
-	private void formula() {//(36)
+	protected void formula() {//(36)
 		pureFormula();
 		if(relationalOpe()) {
 			pureFormula();
@@ -487,13 +490,16 @@ public class ParseModel {
 		}
 	}
 
-	private void pureFormula() {//(37)
+	protected void pureFormula() {//(37)
 		switch(tokenList.get(pointer++)) {
 		case SPLUS:
+			//isPlus = true;
 			break;
 		case SMINUS:
+			//isPlus = false;
 			break;
 		default:
+			//isPlus = true;
 			pointer--;
 			break;
 		}
@@ -508,7 +514,7 @@ public class ParseModel {
 		}
 	}
 
-	private void term() {//(38)
+	protected void term() {//(38)
 		factor();
 		while(true) {
 			if(multiplicativeOpe()) {
@@ -520,7 +526,7 @@ public class ParseModel {
 		}
 	}
 
-	private void factor() {//(39)
+	protected void factor() {//(39)
 		switch(tokenList.get(pointer++)) {
 		case SIDENTIFIER:
 			pointer--;
@@ -529,7 +535,7 @@ public class ParseModel {
 		case SLPAREN:
 			formula();
 			if(tokenList.get(pointer++) != SRPAREN) {
-				error();
+				synError();
 			}
 			break;
 		case SNOT:
@@ -541,7 +547,7 @@ public class ParseModel {
 		}
 	}
 
-	private boolean relationalOpe() {//(40)
+	protected boolean relationalOpe() {//(40)
 		switch(tokenList.get(pointer++)) {
 		case SEQUAL:
 		case SNOTEQUAL:
@@ -555,7 +561,7 @@ public class ParseModel {
 		}
 	}
 
-	private boolean additiveOpe() {//(41)
+	protected boolean additiveOpe() {//(41)
 		switch(tokenList.get(pointer++)) {
 		case SPLUS:
 		case SMINUS:
@@ -566,7 +572,7 @@ public class ParseModel {
 		}
 	}
 
-	private boolean multiplicativeOpe() {//(42)
+	protected boolean multiplicativeOpe() {//(42)
 		switch(tokenList.get(pointer++)) {
 		case SSTAR:
 		case SDIVD:
@@ -586,7 +592,7 @@ public class ParseModel {
 			}else {
 				seqOfVars();
 				if(tokenList.get(pointer++) != SRPAREN) {
-					error();
+					synError();
 				}
 			}
 			break;
@@ -596,12 +602,12 @@ public class ParseModel {
 			}else {
 				seqOfFormulae();
 				if(tokenList.get(pointer++) != SRPAREN) {
-					error();
+					synError();
 				}
 			}
 			break;
 		default:
-			error();
+			synError();
 			break;
 		}
 	}
@@ -618,7 +624,7 @@ public class ParseModel {
 		}
 	}
 
-	private void constant() {//(45)
+	protected void constant() {//(45)
 		switch(tokenList.get(pointer++)) {
 		case SCONSTANT:
 			pointer--;
@@ -633,20 +639,35 @@ public class ParseModel {
 		case STRUE:
 			break;
 		default:
-			error();
+			synError();
 			break;
 		}
 	}
 
-	private void unsignedInteger() {//(46)
+/*	private void unsignedInteger() {//(46)
 		if(tokenList.get(pointer++) != SCONSTANT) {
-			error();
+			synError();
+		}
+		if(isPlus) {
+			if(Integer.parseInt(wordsList.get(pointer - 1)) > 32767) {
+				semError();
+			}
+		}else {
+			if(Integer.parseInt(wordsList.get(pointer - 1)) > 32768) {
+				semError();
+			}
+		}
+	}*/
+
+	protected void unsignedInteger() {//(46)
+		if(tokenList.get(pointer++) != SCONSTANT) {
+			synError();
 		}
 	}
 
 	private void string() {//(47)
 		if(tokenList.get(pointer++) != SSTRING) {
-			error();
+			synError();
 		}
 	}
 
@@ -656,7 +677,7 @@ public class ParseModel {
 
 	private void name() {//(49)
 		if(tokenList.get(pointer++) != SIDENTIFIER) {
-			error();
+			synError();
 		}
 	}
 
@@ -668,9 +689,11 @@ public class ParseModel {
 
 	}*/
 
-	private void error(){
-		if(errorLine == -1) {
-			errorLine = lineList.get(pointer - 1);
+
+	protected void synError(){
+		if(synErrorLine == -1) {
+			synErrorLine = lineList.get(pointer - 1);
 		}
 	}
+
 }
