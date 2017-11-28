@@ -43,6 +43,58 @@ public class ProcedureModel {
 		return false;
 	}
 
+	public boolean existsInIntegerList(String varName) {
+		if(!integerList.isEmpty()) {
+			for(IntegerType integerVar: integerList) {
+				if(varName.equals(integerVar.getName())) {
+					return true;
+				}
+			}
+			return false;
+		}else {
+			return false;
+		}
+	}
+
+	public boolean existsInCharList(String varName) {
+		if(!charList.isEmpty()) {
+			for(CharType charVar: charList) {
+				if(varName.equals(charVar.getName())) {
+					return true;
+				}
+			}
+			return false;
+		}else {
+			return false;
+		}
+	}
+
+	public boolean existsInBooleanList(String varName) {
+		if(!booleanList.isEmpty()) {
+			for(BooleanType booleanVar: booleanList) {
+				if(varName.equals(booleanVar.getName())) {
+					return true;
+				}
+			}
+			return false;
+		}else {
+			return false;
+		}
+	}
+
+	public boolean existsInArrayList(String varName) {
+		if(!arrayList.isEmpty()) {
+			for(ArrayType arrayVar: arrayList) {
+				if(varName.equals(arrayVar.getName())) {
+					return true;
+				}
+			}
+			return false;
+		}else {
+			return false;
+		}
+	}
+
 	public boolean addToList(IntegerType varAdded) {
 		if(existsInProcedure(varAdded.getName())){
 			return false;
@@ -73,6 +125,15 @@ public class ProcedureModel {
 		}
 		arrayList.add(varAdded);
 		return true;
+	}
+
+	public int getTypeOfArray(String name) {
+		for(ArrayType arrayVar: arrayList) {
+			if(arrayVar.getName().equals(name)) {
+				return arrayVar.getType();
+			}
+		}
+		return -1;
 	}
 
 }
@@ -146,6 +207,10 @@ class ArrayType{
 
 	public String getName() {
 		return name;
+	}
+
+	public int getType() {
+		return type;
 	}
 
 }

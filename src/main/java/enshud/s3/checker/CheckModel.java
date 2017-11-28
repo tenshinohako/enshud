@@ -218,17 +218,25 @@ public class CheckModel extends ParseModel{
 		}
 	}
 
+
+	//-------------------------------------------------//
 	@Override
+	protected void formula() {//(36)
+		pureFormula();
+		if(relationalOpe()) {
+			pureFormula();
+		}else {
+			pointer--;
+		}
+	}
+
 	protected void pureFormula() {//(37)
 		switch(tokenList.get(pointer++)) {
 		case SPLUS:
-			isPlus = true;
 			break;
 		case SMINUS:
-			isPlus = false;
 			break;
 		default:
-			isPlus = true;
 			pointer--;
 			break;
 		}
@@ -242,6 +250,40 @@ public class CheckModel extends ParseModel{
 			}
 		}
 	}
+
+	protected void term() {//(38)
+		factor();
+		while(true) {
+			if(multiplicativeOpe()) {
+				factor();
+			}else {
+				pointer--;
+				break;
+			}
+		}
+	}
+
+	protected void factor() {//(39)
+		switch(tokenList.get(pointer++)) {
+		case SIDENTIFIER:
+			pointer--;
+			var();
+			break;
+		case SLPAREN:
+			formula();
+			if(tokenList.get(pointer++) != SRPAREN) {
+				synError();
+			}
+			break;
+		case SNOT:
+			factor();
+			break;
+		default:
+			pointer--;
+			constant();
+		}
+	}
+	//-------------------------------------------------//
 
 	@Override
 	protected void unsignedInteger() {//(46)
@@ -322,20 +364,41 @@ public class CheckModel extends ParseModel{
 		switch(tokenList.get(pointer++)) {
 		case SIDENTIFIER:
 			pointer--;
+			if(currentProcedure.existsInIntegerList(wordsList.get(pointer))) {
+
+			}else if(currentProcedure.existsInArrayList(wordsList.get(pointer))) {
+				if(currentProcedure.getTypeOfArray(wordsList.get(pointer)) != SINTEGER) {
+					semError();
+				}
+			}else {
+				if(procedureList.get(0).existsInIntegerList(wordsList.get(pointer))) {
+
+				}else if(procedureList.get(0).existsInArrayList(wordsList.get(pointer))) {
+					if(procedureList.get(0).getTypeOfArray(wordsList.get(pointer)) != SINTEGER) {
+						semError();
+					}
+				}else {
+					semError();
+				}
+			}
 			var();
 			break;
 		case SLPAREN:
-			formula();
+			suffixFormula();
 			if(tokenList.get(pointer++) != SRPAREN) {
 				synError();
 			}
 			break;
 		case SNOT:
+			semError();
 			factor();
 			break;
+		case SCONSTANT:
+			break;
 		default:
-			pointer--;
-			constant();
+			semError();
+			//pointer--;
+			//constant();
 		}
 	}
 

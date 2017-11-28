@@ -340,7 +340,7 @@ public class ParseModel {
 		}
 	}
 
-	private void statement() {//(26)
+	protected void statement() {//(26)
 		switch(tokenList.get(pointer++)) {
 		case SIF:
 			formula();
