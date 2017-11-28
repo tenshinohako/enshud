@@ -3,6 +3,10 @@ package enshud.s3.checker;
 import java.util.ArrayList;
 
 public class ProcedureModel {
+	protected static final int SBOOLEAN = 3;
+	protected static final int SCHAR = 4;
+	protected static final int SINTEGER = 11;
+
 	public ArrayList<IntegerType> integerList = new ArrayList<IntegerType>();
 	public ArrayList<CharType> charList = new ArrayList<CharType>();
 	public ArrayList<BooleanType> booleanList = new ArrayList<BooleanType>();
@@ -125,6 +129,42 @@ public class ProcedureModel {
 		}
 		arrayList.add(varAdded);
 		return true;
+	}
+
+	public int getType(String name) {
+		if(!integerList.isEmpty()) {
+			for(IntegerType integerVar: integerList) {
+				if(name.equals(integerVar.getName())) {
+					return SINTEGER;
+				}
+			}
+		}
+
+		if(!charList.isEmpty()) {
+			for(CharType charVar: charList) {
+				if(name.equals(charVar.getName())) {
+					return SCHAR;
+				}
+			}
+		}
+
+		if(!booleanList.isEmpty()) {
+			for(BooleanType booleanVar: booleanList) {
+				if(name.equals(booleanVar.getName())) {
+					return SBOOLEAN;
+				}
+			}
+		}
+
+		if(!arrayList.isEmpty()) {
+			for(ArrayType arrayVar: arrayList) {
+				if(name.equals(arrayVar.getName())) {
+					return arrayVar.getType();
+				}
+			}
+		}
+
+		return -1;
 	}
 
 	public int getTypeOfArray(String name) {

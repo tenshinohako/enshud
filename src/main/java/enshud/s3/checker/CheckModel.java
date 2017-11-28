@@ -197,6 +197,38 @@ public class CheckModel extends ParseModel{
 	}
 
 	@Override
+	protected void statement() {//(26)
+		switch(tokenList.get(pointer++)) {
+		case SIF:
+			if(typeFormula() != SBOOLEAN) {
+				semError();
+			}
+			if(tokenList.get(pointer++) != STHEN) {
+				synError();
+			}
+			compoundStatement();
+			if(tokenList.get(pointer++) != SELSE) {
+				pointer--;
+			}else {
+				compoundStatement();
+			}
+			break;
+		case SWHILE:
+			if(typeFormula() != SBOOLEAN) {
+				semError();
+			}
+			if(tokenList.get(pointer++) != SDO) {
+				synError();
+			}
+			statement();
+			break;
+		default:
+			pointer--;
+			basicStatement();
+		}
+	}
+
+	@Override
 	protected void var() {//(30)
 		varName();
 		if(!currentProcedure.existsInProcedure(wordsList.get(pointer - 1))) {
@@ -218,72 +250,10 @@ public class CheckModel extends ParseModel{
 		}
 	}
 
-
-	//-------------------------------------------------//
 	@Override
-	protected void formula() {//(36)
-		pureFormula();
-		if(relationalOpe()) {
-			pureFormula();
-		}else {
-			pointer--;
-		}
+	protected void suffix() {//(33)
+		suffixFormula();
 	}
-
-	protected void pureFormula() {//(37)
-		switch(tokenList.get(pointer++)) {
-		case SPLUS:
-			break;
-		case SMINUS:
-			break;
-		default:
-			pointer--;
-			break;
-		}
-		term();
-		while(true) {
-			if(additiveOpe()) {
-				term();
-			}else {
-				pointer--;
-				break;
-			}
-		}
-	}
-
-	protected void term() {//(38)
-		factor();
-		while(true) {
-			if(multiplicativeOpe()) {
-				factor();
-			}else {
-				pointer--;
-				break;
-			}
-		}
-	}
-
-	protected void factor() {//(39)
-		switch(tokenList.get(pointer++)) {
-		case SIDENTIFIER:
-			pointer--;
-			var();
-			break;
-		case SLPAREN:
-			formula();
-			if(tokenList.get(pointer++) != SRPAREN) {
-				synError();
-			}
-			break;
-		case SNOT:
-			factor();
-			break;
-		default:
-			pointer--;
-			constant();
-		}
-	}
-	//-------------------------------------------------//
 
 	@Override
 	protected void unsignedInteger() {//(46)
@@ -309,10 +279,8 @@ public class CheckModel extends ParseModel{
 			}
 		}
 	}
-	@Override
-	protected void suffix() {//(33)
-		suffixFormula();
-	}
+
+	/* ****************************************************************** */
 
 	private void suffixFormula() {
 		suffixPureFormula();
@@ -401,6 +369,127 @@ public class CheckModel extends ParseModel{
 			//constant();
 		}
 	}
+
+	/* ****************************************************************** */
+	protected int typeFormula() {//(36)
+		int type = typePureFormula();
+		if(relationalOpe()) {
+			if(typePureFormula() == type) {
+				return SBOOLEAN;
+			}else {
+				semError();
+				return -1;
+			}
+		}else {
+			pointer--;
+			return type;
+		}
+	}
+
+	protected int typePureFormula() {//(37)
+		int type = -1;
+		switch(tokenList.get(pointer++)) {
+		case SPLUS:
+		case SMINUS:
+			type = SINTEGER;
+			break;
+		default:
+			pointer--;
+			break;
+		}
+		if(type == SINTEGER) {
+			if((type = typeTerm()) != SINTEGER) {
+				semError();
+			}
+		}else {
+			type = typeTerm();
+		}
+		while(true) {
+			if(additiveOpe()) {
+				if(type != SINTEGER) {
+					semError();
+				}
+				type = typeTerm();
+			}else {
+				pointer--;
+				if(type != SINTEGER) {
+					semError();
+					type = -1;
+				}
+				break;
+			}
+		}
+		return type;
+	}
+
+	protected int typeTerm() {//(38)
+		int type = typeFactor();
+		while(true) {
+			if(multiplicativeOpe()) {
+				if(type != SINTEGER) {
+					semError();
+				}
+				type = typeFactor();
+			}else {
+				pointer--;
+				if(type != SINTEGER) {
+					semError();
+					type = -1;
+				}
+				break;
+			}
+		}
+		return type;
+	}
+
+	protected int typeFactor() {//(39)
+		int type;
+		switch(tokenList.get(pointer++)) {
+		case SIDENTIFIER:
+			pointer--;
+			if((type = currentProcedure.getType(wordsList.get(pointer))) == -1) {
+				if((type = procedureList.get(0).getType(wordsList.get(pointer))) == -1) {
+					semError();
+				}
+			}
+			var();
+			return type;
+		case SLPAREN:
+			type = typeFormula();
+			if(tokenList.get(pointer++) != SRPAREN) {
+				synError();
+			}
+			return type;
+		case SNOT:
+			if(typeFactor() != SBOOLEAN) {
+				semError();
+			}
+			return SBOOLEAN;
+		default:
+			pointer--;
+			return typeConstant();
+		}
+	}
+
+	protected int typeConstant() {//(45)
+		switch(tokenList.get(pointer++)) {
+		case SCONSTANT:
+			pointer--;
+			unsignedInteger();
+			return SINTEGER;
+		case SSTRING:
+			pointer--;
+			string();
+			return SSTRING;
+		case SFALSE:
+		case STRUE:
+			return SBOOLEAN;
+		default:
+			synError();
+			return -1;
+		}
+	}
+	/* ****************************************************************** */
 
 	private void semError() {
 		if(semErrorLine == -1) {

@@ -318,7 +318,7 @@ public class ParseModel {
 		name();
 	}
 
-	private void compoundStatement() {//(24)
+	protected void compoundStatement() {//(24)
 		if(tokenList.get(pointer++) != SBEGIN) {
 			synError();
 		}
@@ -368,7 +368,7 @@ public class ParseModel {
 
 	}
 
-	private void basicStatement() {//(27)
+	protected void basicStatement() {//(27)
 		switch(tokenList.get(pointer++)) {
 		case SIDENTIFIER:
 			switch(tokenList.get(pointer++)) {
@@ -644,7 +644,7 @@ public class ParseModel {
 		}
 	}
 
-	private void string() {//(47)
+	protected void string() {//(47)
 		if(tokenList.get(pointer++) != SSTRING) {
 			synError();
 		}
