@@ -388,6 +388,7 @@ public class CheckModel extends ParseModel{
 
 	protected int typePureFormula() {//(37)
 		int type = -1;
+		int expectedType;
 		switch(tokenList.get(pointer++)) {
 		case SPLUS:
 		case SMINUS:
@@ -404,18 +405,27 @@ public class CheckModel extends ParseModel{
 		}else {
 			type = typeTerm();
 		}
+		expectedType = type;
 		while(true) {
-			if(additiveOpe()) {
-				if(type != SINTEGER) {
+			int ope = typeAdditiveOpe();
+			if(ope == SINTEGER) {
+				if(expectedType != SINTEGER) {
 					semError();
 				}
 				type = typeTerm();
-			}else {
-				pointer--;
 				if(type != SINTEGER) {
 					semError();
-					type = -1;
 				}
+			}else if(ope == SBOOLEAN){
+				if(expectedType != SBOOLEAN) {
+					semError();
+				}
+				type = typeTerm();
+				if(type != SBOOLEAN) {
+					semError();
+				}
+			}else {
+				pointer--;
 				break;
 			}
 		}
@@ -424,18 +434,27 @@ public class CheckModel extends ParseModel{
 
 	protected int typeTerm() {//(38)
 		int type = typeFactor();
+		int expectedType = type;
 		while(true) {
-			if(multiplicativeOpe()) {
-				if(type != SINTEGER) {
+			int ope = typeMultiplicativeOpe();
+			if(ope == SINTEGER) {
+				if(expectedType != SINTEGER) {
 					semError();
 				}
 				type = typeFactor();
-			}else {
-				pointer--;
 				if(type != SINTEGER) {
 					semError();
-					type = -1;
 				}
+			}else if(ope == SBOOLEAN) {
+				if(expectedType != SBOOLEAN) {
+					semError();
+				}
+				type = typeFactor();
+				if(type != SBOOLEAN) {
+					semError();
+				}
+			}else {
+				pointer--;
 				break;
 			}
 		}
@@ -480,12 +499,41 @@ public class CheckModel extends ParseModel{
 		case SSTRING:
 			pointer--;
 			string();
-			return SSTRING;
+			if(wordsList.get(pointer - 1).length() <= 3) {
+				return SCHAR;
+			}else {
+				return SSTRING;
+			}
 		case SFALSE:
 		case STRUE:
 			return SBOOLEAN;
 		default:
 			synError();
+			return -1;
+		}
+	}
+
+	protected int typeAdditiveOpe() {//(41)
+		switch(tokenList.get(pointer++)) {
+		case SPLUS:
+		case SMINUS:
+			return SINTEGER;
+		case SOR:
+			return SBOOLEAN;
+		default:
+			return -1;
+		}
+	}
+
+	protected int typeMultiplicativeOpe() {//(42)
+		switch(tokenList.get(pointer++)) {
+		case SSTAR:
+		case SDIVD:
+		case SMOD:
+			return SINTEGER;
+		case SAND:
+			return SBOOLEAN;
+		default:
 			return -1;
 		}
 	}
