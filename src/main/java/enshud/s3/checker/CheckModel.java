@@ -25,6 +25,7 @@ public class CheckModel extends ParseModel{
 	@Override
 	protected void block() {//(4)
 		currentProcedure = new ProcedureModel();
+		currentProcedure.setName(wordsList.get(1));
 		varDecl();
 		procedureList.add(currentProcedure);
 		subprogramDecls();
@@ -39,41 +40,6 @@ public class CheckModel extends ParseModel{
 		while(true) {
 			if(tokenList.get(pointer++) != SCOMMA) {
 				pointer--;
-				/*
-				switch(tokenList.get(pointer + 1)) {
-				case SINTEGER:
-					for(String tempName: tempNameList) {
-						if(!currentProcedure.addToList(new IntegerType(tempName))) {
-							semError();
-						}
-					}
-					break;
-				case SCHAR:
-					for(String tempName: tempNameList) {
-						if(!currentProcedure.addToList(new CharType(tempName))) {
-							semError();
-						}
-					}
-					break;
-				case SBOOLEAN:
-					for(String tempName: tempNameList) {
-						if(!currentProcedure.addToList(new BooleanType(tempName))) {
-							semError();
-						}
-					}
-					break;
-				case SARRAY:
-					int varType = tokenList.get(pointer + 8);
-					int minSuffix = Integer.parseInt(wordsList.get(pointer + 3));
-					int maxSuffix = Integer.parseInt(wordsList.get(pointer + 5));
-					for(String tempName: tempNameList) {
-						if(!currentProcedure.addToList(
-								new ArrayType(tempName, varType, minSuffix, maxSuffix))) {
-							semError();
-						}
-					}
-					break;
-				}*/
 				break;
 			}else {
 				varName();
@@ -175,8 +141,9 @@ public class CheckModel extends ParseModel{
 	@Override
 	protected void subprogramDecl() {//(17)
 		currentProcedure = new ProcedureModel();
-		super.subprogramDecl();
+		currentProcedure.setName(wordsList.get(pointer + 1));
 		procedureList.add(currentProcedure);
+		super.subprogramDecl();
 	}
 
 	@Override
@@ -229,6 +196,17 @@ public class CheckModel extends ParseModel{
 	}
 
 	@Override
+	protected void assignmentStatement() {//(28)
+		int type = typeLeftSide();
+		if(tokenList.get(pointer++) != SASSIGN) {
+			synError();
+		}
+		if(typeFormula() != type) {
+			semError();
+		}
+	}
+
+	@Override
 	protected void var() {//(30)
 		varName();
 		if(!currentProcedure.existsInProcedure(wordsList.get(pointer - 1))) {
@@ -242,7 +220,21 @@ public class CheckModel extends ParseModel{
 		}
 		if(tokenList.get(pointer++) != SLBRACKET) {
 			pointer--;
+			/*if(currentProcedure.isArrayType(wordsList.get(pointer - 1))) {
+				semError();
+			}else {
+				if(procedureList.get(0).isArrayType(wordsList.get(pointer - 1))) {
+					semError();
+				}
+			}*/
 		}else {
+			/*if(!currentProcedure.isArrayType(wordsList.get(pointer - 1))) {
+				semError();
+			}else {
+				if(!procedureList.get(0).isArrayType(wordsList.get(pointer - 1))) {
+					semError();
+				}
+			}*/
 			suffix();
 			if(tokenList.get(pointer++) != SRBRACKET) {
 				synError();
@@ -252,7 +244,35 @@ public class CheckModel extends ParseModel{
 
 	@Override
 	protected void suffix() {//(33)
-		suffixFormula();
+		if(typeFormula() != SINTEGER) {
+			semError();
+		}
+	}
+
+	@Override
+	protected void procedureCallStatement() {//(34)
+		boolean exist = false;
+		for(ProcedureModel proc: procedureList) {
+			if(proc.getName().equals(wordsList.get(pointer))) {
+				exist = true;
+				break;
+			}
+		}
+		if(!exist) {
+			semError();
+		}
+
+		/*    */
+		procedureName();
+		if(tokenList.get(pointer++) != SLPAREN) {
+			pointer--;
+		}else {
+			seqOfFormulae();
+			if(tokenList.get(pointer++) != SRPAREN) {
+				synError();
+			}
+		}
+		/*    */
 	}
 
 	@Override
@@ -282,95 +302,6 @@ public class CheckModel extends ParseModel{
 
 	/* ****************************************************************** */
 
-	private void suffixFormula() {
-		suffixPureFormula();
-		if(relationalOpe()) {
-			semError();
-			pureFormula();
-		}else {
-			pointer--;
-		}
-	}
-
-	private void suffixPureFormula() {
-		switch(tokenList.get(pointer++)) {
-		case SPLUS:
-			isPlus = true;
-			break;
-		case SMINUS:
-			isPlus = false;
-			break;
-		default:
-			isPlus = true;
-			pointer--;
-			break;
-		}
-		suffixTerm();
-		while(true) {
-			if(additiveOpe()) {
-				suffixTerm();
-			}else {
-				pointer--;
-				break;
-			}
-		}
-	}
-
-	private void suffixTerm() {
-		suffixFactor();
-		while(true) {
-			if(multiplicativeOpe()) {
-				suffixFactor();
-			}else {
-				pointer--;
-				break;
-			}
-		}
-	}
-
-	private void suffixFactor() {
-		switch(tokenList.get(pointer++)) {
-		case SIDENTIFIER:
-			pointer--;
-			if(currentProcedure.existsInIntegerList(wordsList.get(pointer))) {
-
-			}else if(currentProcedure.existsInArrayList(wordsList.get(pointer))) {
-				if(currentProcedure.getTypeOfArray(wordsList.get(pointer)) != SINTEGER) {
-					semError();
-				}
-			}else {
-				if(procedureList.get(0).existsInIntegerList(wordsList.get(pointer))) {
-
-				}else if(procedureList.get(0).existsInArrayList(wordsList.get(pointer))) {
-					if(procedureList.get(0).getTypeOfArray(wordsList.get(pointer)) != SINTEGER) {
-						semError();
-					}
-				}else {
-					semError();
-				}
-			}
-			var();
-			break;
-		case SLPAREN:
-			suffixFormula();
-			if(tokenList.get(pointer++) != SRPAREN) {
-				synError();
-			}
-			break;
-		case SNOT:
-			semError();
-			factor();
-			break;
-		case SCONSTANT:
-			break;
-		default:
-			semError();
-			//pointer--;
-			//constant();
-		}
-	}
-
-	/* ****************************************************************** */
 	protected int typeFormula() {//(36)
 		int type = typePureFormula();
 		if(relationalOpe()) {
@@ -537,6 +468,19 @@ public class CheckModel extends ParseModel{
 			return -1;
 		}
 	}
+	/* ****************************************************************** */
+
+	protected int typeLeftSide() {//(29)
+		int type;
+		if((type = currentProcedure.getType(wordsList.get(pointer))) == -1) {
+			if((type = procedureList.get(0).getType(wordsList.get(pointer))) == -1) {
+				semError();
+			}
+		}
+		leftSide();
+		return type;
+	}
+
 	/* ****************************************************************** */
 
 	private void semError() {

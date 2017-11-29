@@ -267,7 +267,7 @@ public class ParseModel {
 		}
 	}
 
-	private void procedureName() {//(19)
+	protected void procedureName() {//(19)
 		name();
 	}
 
@@ -374,6 +374,7 @@ public class ParseModel {
 			switch(tokenList.get(pointer++)) {
 			case SLPAREN:
 			case SSEMICOLON:
+			case SEND:
 				pointer--;
 				pointer--;
 				procedureCallStatement();
@@ -383,9 +384,6 @@ public class ParseModel {
 				pointer--;
 				pointer--;
 				assignmentStatement();
-				break;
-			case SEND:
-				pointer--;
 				break;
 			default:
 				synError();
@@ -411,7 +409,7 @@ public class ParseModel {
 
 	}
 
-	private void assignmentStatement() {//(28)
+	protected void assignmentStatement() {//(28)
 		leftSide();
 		if(tokenList.get(pointer++) != SASSIGN) {
 			synError();
@@ -419,7 +417,7 @@ public class ParseModel {
 		formula();
 	}
 
-	private void leftSide() {//(29)
+	protected void leftSide() {//(29)
 		var();
 	}
 
@@ -454,7 +452,7 @@ public class ParseModel {
 		formula();
 	}
 
-	private void procedureCallStatement() {//(34)
+	protected void procedureCallStatement() {//(34)
 		procedureName();
 		if(tokenList.get(pointer++) != SLPAREN) {
 			pointer--;
@@ -466,7 +464,7 @@ public class ParseModel {
 		}
 	}
 
-	private void seqOfFormulae() {//(35)
+	protected void seqOfFormulae() {//(35)
 		formula();
 		while(true) {
 			if(tokenList.get(pointer++) != SCOMMA) {

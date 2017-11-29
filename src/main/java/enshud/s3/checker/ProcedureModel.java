@@ -7,10 +7,12 @@ public class ProcedureModel {
 	protected static final int SCHAR = 4;
 	protected static final int SINTEGER = 11;
 
-	public ArrayList<IntegerType> integerList = new ArrayList<IntegerType>();
-	public ArrayList<CharType> charList = new ArrayList<CharType>();
-	public ArrayList<BooleanType> booleanList = new ArrayList<BooleanType>();
-	public ArrayList<ArrayType> arrayList = new ArrayList<ArrayType>();
+	private ArrayList<IntegerType> integerList = new ArrayList<IntegerType>();
+	private ArrayList<CharType> charList = new ArrayList<CharType>();
+	private ArrayList<BooleanType> booleanList = new ArrayList<BooleanType>();
+	private ArrayList<ArrayType> arrayList = new ArrayList<ArrayType>();
+
+	private String procedureName;
 
 	public boolean existsInProcedure(String varName) {
 		if(!integerList.isEmpty()) {
@@ -174,6 +176,25 @@ public class ProcedureModel {
 			}
 		}
 		return -1;
+	}
+
+	public boolean isArrayType(String name) {
+		if(!arrayList.isEmpty()) {
+			for(ArrayType arrayVar: arrayList) {
+				if(name.equals(arrayVar.getName())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public void setName(String name) {
+		procedureName = name;
+	}
+
+	public String getName() {
+		return procedureName;
 	}
 
 }

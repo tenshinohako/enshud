@@ -18,8 +18,8 @@ public class Checker {
 		//new Checker().run("data/ts/normal02.ts");
 
 
-		new Checker().run("data/ts/normal01.ts");
-		new Checker().run("data/ts/normal03.ts");
+		//new Checker().run("data/ts/normal04.ts");
+		//new Checker().run("data/ts/normal05.ts");
 
 		// synerrの確認
 		//new Checker().run("data/ts/synerr01.ts");
@@ -29,7 +29,7 @@ public class Checker {
 		//new Checker().run("data/ts/semerr01.ts");
 		//new Checker().run("data/ts/semerr02.ts");
 
-		new Checker().run("data/ts/semerr07.ts");
+		new Checker().run("data/ts/semerr08.ts");
 
 		//new Checker().run("data/ts/mytest/numerr.ts");
 	}
@@ -68,9 +68,6 @@ public class Checker {
 				wordsList.add(tokenBuf[0]);
 			}
 			br.close();
-
-			//ProgramModel pm = new ProgramModel(tokenList, lineList, wordsList);
-			//pm.program();
 
 			CheckModel cm = new CheckModel(tokenList, lineList, wordsList);
 			cm.program();
