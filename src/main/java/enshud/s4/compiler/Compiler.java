@@ -1,6 +1,7 @@
 package enshud.s4.compiler;
 
 import enshud.casl.CaslSimulator;
+import enshud.s3.checker.Checker;
 
 public class Compiler {
 	/**
@@ -34,6 +35,7 @@ public class Compiler {
 	public void run(final String inputFileName, final String outputFileName) {
 
 		// TODO
+
 
 	}
 }

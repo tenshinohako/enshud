@@ -232,13 +232,12 @@ public class CheckModel extends ParseModel {
 				}
 			}
 		}else {
-			/*if(!currentProcedure.isArrayType(wordsList.get(pointer - 1))) {
+			if(!currentProcedure.isArrayType(wordsList.get(pointer - 2))) {
+				if(!procedureList.get(0).isArrayType(wordsList.get(pointer - 2))) {
 				semError();
-			}else {
-				if(!procedureList.get(0).isArrayType(wordsList.get(pointer - 1))) {
-					semError();
 				}
-			}*/
+			}
+			
 			suffix();
 			if(tokenList.get(pointer++) != SRBRACKET) {
 				synError();
