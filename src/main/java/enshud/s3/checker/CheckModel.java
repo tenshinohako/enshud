@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import enshud.s2.parser.ParseModel;
 
-public class CheckModel extends ParseModel{
+public class CheckModel extends ParseModel {
 
 	private ArrayList<String> wordsList;
 	private Integer semErrorLine = new Integer(-1);
@@ -220,13 +220,17 @@ public class CheckModel extends ParseModel{
 		}
 		if(tokenList.get(pointer++) != SLBRACKET) {
 			pointer--;
-			/*if(currentProcedure.isArrayType(wordsList.get(pointer - 1))) {
-				semError();
-			}else {
-				if(procedureList.get(0).isArrayType(wordsList.get(pointer - 1))) {
+			if(currentProcedure.isArrayType(wordsList.get(pointer - 1))) {
+				if(tokenList.get(pointer - 3) != SWRITELN) {
 					semError();
 				}
-			}*/
+			}else {
+				if(procedureList.get(0).isArrayType(wordsList.get(pointer - 1))) {
+					if(tokenList.get(pointer - 3) != SWRITELN) {
+						semError();
+					}
+				}
+			}
 		}else {
 			/*if(!currentProcedure.isArrayType(wordsList.get(pointer - 1))) {
 				semError();

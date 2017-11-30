@@ -18,7 +18,7 @@ public class Checker {
 		//new Checker().run("data/ts/normal02.ts");
 
 
-		//new Checker().run("data/ts/normal04.ts");
+		new Checker().run("data/ts/normal03.ts");
 		//new Checker().run("data/ts/normal05.ts");
 
 		// synerrの確認
@@ -29,7 +29,7 @@ public class Checker {
 		//new Checker().run("data/ts/semerr01.ts");
 		//new Checker().run("data/ts/semerr02.ts");
 
-		new Checker().run("data/ts/semerr08.ts");
+		//new Checker().run("data/ts/semerr08.ts");
 
 		//new Checker().run("data/ts/mytest/numerr.ts");
 	}
