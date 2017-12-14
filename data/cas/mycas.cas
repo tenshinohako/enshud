@@ -9,48 +9,102 @@ BEGIN	LAD	GR6,0
 	LD	GR1, ='D'
 	ST	GR1, MSG
 	POP	GR1
-	PUSH	0,GR1		;writeln
+	PUSH	0,GR1		;write-string
 	PUSH	0,GR2
 	LAD	GR2, STR0
 	LD	GR1, =24
 	CALL	WRTSTR
-	CALL	WRTLN
+	CALL	WRTLN		:writeln
 	POP	GR2
 	POP	GR1
 	PUSH	0,GR1		;i := 0
 	LD	GR1, =0
 	ST	GR1, I
 	POP	GR1
-	PUSH	0,GR1		;while
+	PUSH	0,GR1		;while(i<10)
 	PUSH	0,GR2
 	LD	GR2, =10
 WHL0	LAD	GR1, I
+	OUT	OU, LN		;;;;;;;;;;;;;;;;;;;;;
 	CPA	GR1, GR2
 	JPL	EWHL0
+	OUT	OU, LN		;;;;;;;;;;;;;;;;;;;;;
 	JZE	EWHL0
-	PUSH	0,GR1
+	OUT	OU, LN		;;;;;;;;;;;;;;;;;;;;;
+	PUSH	0,GR1		;i := i + 1
 	PUSH	0,GR2
+	XOR	GR1, GR1
 	LAD	GR2, I
 	ADDA	GR1, GR2
-	
-	
-	
-
-
-EWHL0
-
-
-
-
+	LD	GR2, =1
+	ADDA	GR1, GR2
+	ST	GR1, I
+	POP	GR2
+	POP	GR1
+	PUSH	0,GR1		;a[i] := i + 1
+	PUSH	0,GR2
+	XOR	GR1, GR1
+	LAD	GR2, I
+	ADDA	GR1, GR2
+	LD	GR2, =1
+	ADDA	GR1, GR2
+	LAD	GR2, I
+	ST	GR1, A, GR2
+	POP	GR2
+	POP	GR1
+	PUSH	0,GR1		;if(debug == true)
+	PUSH	0,GR2
+	LAD	GR1, DEBUG
+	LD	GR2, =1
+	CPA	GR1, GR2
+	JNZ	FALSE0
+TRUE0	NOP			;true
+	PUSH	0,GR2		;write-char
+	LAD	GR2, STR1
+	CALL	WRTCH
+	POP	GR2
+	PUSH	0,GR2		;write-char
+	LAD	GR2, MSG
+	CALL	WRTCH
+	POP	GR2
+	PUSH	0,GR1		;write-string
+	PUSH	0,GR2
+	LD	GR1, =4
+	LAD	GR2, STR2
+	CALL	WRTSTR
+	POP	GR2
+	POP	GR1
+	PUSH	0,GR2		;write-int
+	LAD	GR2, I
+	CALL	WRTINT
+	POP	GR2
+	CALL	WRTLN		;writeln
+	JUMP	ALL0
+FALSE0	NOP			;false
+ALL0	NOP
+	JUMP	WHL0
+EWHL0	NOP			;end-while
+	PUSH	0,GR1		;write-string
+	PUSH	0,GR2
+	LD	GR1, =19
+	LAD	GR2, STR3
+	CALL	WRTSTR
+	POP	GR2
+	POP	GR1
+	CALL	WRTLN		;writeln
 	RET
+OU	DC	'debug'
+LN	DC	5
+LIBBUF	DS	256
 I	DS	1
 A	DS	10
 MSG	DS	1
 DEBUG	DS	1
 STR0	DC	'***** calculating ******'
+STR1	DC	'['
+STR2	DC	'] i='
+STR3	DC	'***** result ******'
 	END
-
-PLUS
 ; lib.cas
 ;============================================================
 ; MULT: 掛け算を行うサブルーチン
