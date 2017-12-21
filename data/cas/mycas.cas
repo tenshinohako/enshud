@@ -21,20 +21,19 @@ BEGIN	LAD	GR6,0
 	LD	GR1, =0
 	ST	GR1, I
 	POP	GR1
-	PUSH	0,GR1		;while(i<10)
+WHL0	PUSH	0,GR1		;while(i<10)
 	PUSH	0,GR2
-	LD	GR2, =10
-WHL0	LAD	GR1, I
-	OUT	OU, LN		;;;;;;;;;;;;;;;;;;;;;
+	LD	GR2, =12
+	LD	GR1, I
 	CPA	GR1, GR2
 	JPL	EWHL0
-	OUT	OU, LN		;;;;;;;;;;;;;;;;;;;;;
 	JZE	EWHL0
-	OUT	OU, LN		;;;;;;;;;;;;;;;;;;;;;
+	POP	GR2
+	POP	GR1	
 	PUSH	0,GR1		;i := i + 1
 	PUSH	0,GR2
 	XOR	GR1, GR1
-	LAD	GR2, I
+	LD	GR2, I
 	ADDA	GR1, GR2
 	LD	GR2, =1
 	ADDA	GR1, GR2
@@ -44,27 +43,27 @@ WHL0	LAD	GR1, I
 	PUSH	0,GR1		;a[i] := i + 1
 	PUSH	0,GR2
 	XOR	GR1, GR1
-	LAD	GR2, I
+	LD	GR2, I
 	ADDA	GR1, GR2
 	LD	GR2, =1
 	ADDA	GR1, GR2
-	LAD	GR2, I
+	LD	GR2, I
 	ST	GR1, A, GR2
 	POP	GR2
 	POP	GR1
 	PUSH	0,GR1		;if(debug == true)
 	PUSH	0,GR2
-	LAD	GR1, DEBUG
+	LD	GR1, DEBUG
 	LD	GR2, =1
 	CPA	GR1, GR2
 	JNZ	FALSE0
 TRUE0	NOP			;true
 	PUSH	0,GR2		;write-char
-	LAD	GR2, STR1
+	LD	GR2, STR1
 	CALL	WRTCH
 	POP	GR2
 	PUSH	0,GR2		;write-char
-	LAD	GR2, MSG
+	LD	GR2, MSG
 	CALL	WRTCH
 	POP	GR2
 	PUSH	0,GR1		;write-string
@@ -75,7 +74,7 @@ TRUE0	NOP			;true
 	POP	GR2
 	POP	GR1
 	PUSH	0,GR2		;write-int
-	LAD	GR2, I
+	LD	GR2, I
 	CALL	WRTINT
 	POP	GR2
 	CALL	WRTLN		;writeln
@@ -84,6 +83,8 @@ FALSE0	NOP			;false
 ALL0	NOP
 	JUMP	WHL0
 EWHL0	NOP			;end-while
+	POP	GR2
+	POP	GR1
 	PUSH	0,GR1		;write-string
 	PUSH	0,GR2
 	LD	GR1, =19
