@@ -1,7 +1,14 @@
 package enshud.s4.compiler;
 
 import enshud.casl.CaslSimulator;
-import enshud.s3.checker.Checker;
+import enshud.s3.checker.CheckModel;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class Compiler {
 	/**
@@ -35,7 +42,47 @@ public class Compiler {
 	public void run(final String inputFileName, final String outputFileName) {
 
 		// TODO
+		try {
+			File inputFile = new File(inputFileName);
+			BufferedReader br = new BufferedReader(new FileReader(inputFile));
 
+			ArrayList<Integer> tokenList = new ArrayList<Integer>();
+			ArrayList<Integer> lineList = new ArrayList<Integer>();
+			ArrayList<String> wordsList = new ArrayList<String>();
+			String lineBuf;
+			while((lineBuf = br.readLine()) != null) {
+				String[] tokenBuf = lineBuf.split("\t", 0);
+				tokenList.add(new Integer(tokenBuf[2]).intValue());
+				lineList.add(new Integer(tokenBuf[3]).intValue());
+				wordsList.add(tokenBuf[0]);
+			}
+			br.close();
+
+			CheckModel cm = new CheckModel(tokenList, lineList, wordsList);
+			cm.program();
+
+			if(cm.getSynErrorLine() == -1) {
+				if(cm.getSemErrorLine() == -1) {
+					
+					CompileModel comMod = new CompileModel(cm.getProcedureList());
+					
+					
+					
+					
+					
+					
+					//System.out.println("OK");
+				}else {
+					System.err.println("Semantic error: line " + cm.getSemErrorLine());
+				}
+			}else {
+				System.err.println("Syntax error: line " + cm.getSynErrorLine());
+			}
+		}catch(FileNotFoundException e){
+			System.err.println("File not found");
+		}catch(IOException e) {
+			System.err.println(e);
+		}
 
 	}
 }

@@ -21,6 +21,10 @@ public class CheckModel extends ParseModel {
 	public int getSemErrorLine() {
 		return semErrorLine;
 	}
+	
+	public ArrayList<ProcedureModel> getProcedureList() {
+		return procedureList;
+	}
 
 	@Override
 	protected void block() {//(4)

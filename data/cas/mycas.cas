@@ -23,7 +23,7 @@ BEGIN	LAD	GR6,0
 	POP	GR1
 WHL0	PUSH	0,GR1		;while(i<10)
 	PUSH	0,GR2
-	LD	GR2, =12
+	LD	GR2, =10
 	LD	GR1, I
 	CPA	GR1, GR2
 	JPL	EWHL0
@@ -42,13 +42,15 @@ WHL0	PUSH	0,GR1		;while(i<10)
 	POP	GR1
 	PUSH	0,GR1		;a[i] := i + 1
 	PUSH	0,GR2
+	PUSH	0,GR3
 	XOR	GR1, GR1
 	LD	GR2, I
 	ADDA	GR1, GR2
-	LD	GR2, =1
-	ADDA	GR1, GR2
 	LD	GR2, I
-	ST	GR1, A, GR2
+	CALL	MULT
+	LD 	GR3, I
+	ST 	GR2, A, GR3
+	POP	GR3
 	POP	GR2
 	POP	GR1
 	PUSH	0,GR1		;if(debug == true)
@@ -98,7 +100,7 @@ OU	DC	'debug'
 LN	DC	5
 LIBBUF	DS	256
 I	DS	1
-A	DS	10
+A	DS	11
 MSG	DS	1
 DEBUG	DS	1
 STR0	DC	'***** calculating ******'
