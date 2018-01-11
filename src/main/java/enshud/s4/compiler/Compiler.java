@@ -4,9 +4,11 @@ import enshud.casl.CaslSimulator;
 import enshud.s3.checker.CheckModel;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -17,10 +19,11 @@ public class Compiler {
 	 */
 	public static void main(final String[] args) {
 		// Compilerを実行してcasを生成する
-		new Compiler().run("data/ts/normal04.ts", "tmp/out.cas");
+		//new Compiler().run("data/ts/normal04.ts", "tmp/out.cas");
+		new Compiler().run("data/ts/normal01.ts", "tmp/out.cas");
 		
 		// CaslSimulatorクラスを使ってコンパイルしたcasを，CASLアセンブラ & COMETシミュレータで実行する
-		CaslSimulator.run("tmp/out.cas", "tmp/out.ans", "36", "48");
+		//CaslSimulator.run("tmp/out.cas", "tmp/out.ans", "36", "48");
 	}
 
 	/**
@@ -64,10 +67,16 @@ public class Compiler {
 			if(cm.getSynErrorLine() == -1) {
 				if(cm.getSemErrorLine() == -1) {
 					
-					CompileModel comMod = new CompileModel(cm.getProcedureList());
+					CompileModel comMod = new CompileModel(cm.getProcedureList(), tokenList);
+					comMod.program();
+					ArrayList<String> outList = comMod.getOutList();
 					
-					
-					
+					File outputFile = new File(outputFileName);
+					BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile));
+					for(String buf: outList) {
+						bw.write(buf);
+					}
+					bw.close();
 					
 					
 					

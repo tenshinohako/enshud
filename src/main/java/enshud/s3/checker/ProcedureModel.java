@@ -13,6 +13,38 @@ public class ProcedureModel {
 	private ArrayList<ArrayType> arrayList = new ArrayList<ArrayType>();
 
 	private String procedureName;
+	private int beginId;
+	private int endId;
+	
+	public int allotId(int begin) {
+		beginId = begin;
+		int index = begin;
+		for(int i=0; i<integerList.size(); i++) {
+			integerList.get(i).allotId(index);
+			index++;
+		}
+		for(int i=0; i<charList.size(); i++) {
+			charList.get(i).allotId(index);
+			index++;
+		}
+		for(int i=0; i<booleanList.size(); i++) {
+			booleanList.get(i).allotId(index);
+			index++;
+		}
+		for(int i=0; i<arrayList.size(); i++) {
+			index = arrayList.get(i).allotId(index);
+		}
+		endId = index - 1;
+		return index;
+	}
+	
+	public boolean existsInProcedure(int id) {
+		if(beginId <= id && id <= endId) {
+			return true;
+		}else {
+			return false;
+		}
+	}
 
 	public boolean existsInProcedure(String varName) {
 		if(!integerList.isEmpty()) {
@@ -202,6 +234,7 @@ public class ProcedureModel {
 class IntegerType{
 	String name;
 	int value;
+	int id;
 	public IntegerType(String name) {
 		this.name = name;
 	}
@@ -213,11 +246,20 @@ class IntegerType{
 	public String getName() {
 		return name;
 	}
+	
+	public void allotId(int id) {
+		this.id = id;
+	}
+	
+	public int getId() {
+		return id;
+	}
 }
 
 class CharType{
 	String name;
 	char value;
+	int id;
 	public CharType(String name) {
 		this.name = name;
 	}
@@ -229,11 +271,20 @@ class CharType{
 	public String getName() {
 		return name;
 	}
+	
+	public void allotId(int id) {
+		this.id = id;
+	}
+	
+	public int getId() {
+		return id;
+	}
 }
 
 class BooleanType{
 	String name;
 	boolean value;
+	int id;
 	BooleanType(String name){
 		this.name = name;
 	}
@@ -245,6 +296,14 @@ class BooleanType{
 	public String getName() {
 		return name;
 	}
+	
+	public void allotId(int id) {
+		this.id = id;
+	}
+	
+	public int getId() {
+		return id;
+	}
 }
 
 class ArrayType{
@@ -255,6 +314,7 @@ class ArrayType{
 	int type;
 	int min;
 	int max;
+	int id;
 	ArrayList<Integer> intList;
 	ArrayList<Character> charList;
 	ArrayList<Boolean> booleanList;
@@ -272,6 +332,15 @@ class ArrayType{
 
 	public int getType() {
 		return type;
+	}
+	
+	public int allotId(int begin) {
+		id = begin;
+		return id + ((max - min) + 1);
+	}
+	
+	public int getId() {
+		return id;
 	}
 
 }

@@ -25,6 +25,13 @@ public class CheckModel extends ParseModel {
 	public ArrayList<ProcedureModel> getProcedureList() {
 		return procedureList;
 	}
+	
+	public void allotId() {
+		int index = 0;
+		for(ProcedureModel pro: procedureList) {
+			index = pro.allotId(index);
+		}
+	}
 
 	@Override
 	protected void block() {//(4)
