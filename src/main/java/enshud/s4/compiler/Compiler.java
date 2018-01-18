@@ -61,20 +61,20 @@ public class Compiler {
 			}
 			br.close();
 
-			CheckModel cm = new CheckModel(tokenList, lineList, wordsList);
+			//CheckModel cm = new CheckModel(tokenList, lineList, wordsList);
+			CompileModel cm = new CompileModel(tokenList, lineList, wordsList);
 			cm.program();
 
 			if(cm.getSynErrorLine() == -1) {
 				if(cm.getSemErrorLine() == -1) {
-					
-					CompileModel comMod = new CompileModel(cm.getProcedureList(), tokenList);
-					comMod.program();
-					ArrayList<String> outList = comMod.getOutList();
+
+					ArrayList<String> outList = cm.getOutList();
 					
 					File outputFile = new File(outputFileName);
 					BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile));
 					for(String buf: outList) {
 						bw.write(buf);
+						bw.write("\n");
 					}
 					bw.close();
 					

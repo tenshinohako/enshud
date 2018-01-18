@@ -16,6 +16,35 @@ public class ProcedureModel {
 	private int beginId;
 	private int endId;
 	
+	public String getCaptureName(String varName) {
+		if(existsInIntegerList(varName)) {
+			for(IntegerType var: integerList) {
+				if(varName.equals(var.getName())) {
+					return var.getCaptureName();
+				}
+			}
+		}else if(existsInCharList(varName)) {
+			for(CharType var: charList) {
+				if(varName.equals(var.getName())) {
+					return var.getCaptureName();
+				}
+			}
+		}else if(existsInBooleanList(varName)) {
+			for(BooleanType var: booleanList) {
+				if(varName.equals(var.getName())) {
+					return var.getCaptureName();
+				}
+			}
+		}else if(existsInArrayList(varName)) {
+			for(ArrayType var: arrayList) {
+				if(varName.equals(var.getName())) {
+					return var.getCaptureName();
+				}
+			}
+		}
+		return "";
+	}
+	
 	public int allotId(int begin) {
 		beginId = begin;
 		int index = begin;
@@ -233,10 +262,17 @@ public class ProcedureModel {
 
 class IntegerType{
 	String name;
+	String captureName;
 	int value;
 	int id;
 	public IntegerType(String name) {
 		this.name = name;
+		this.captureName = name;
+		
+		if(captureName.length() > 8) {
+			captureName = captureName.substring(0, 8);
+		}
+		captureName = captureName.toUpperCase();
 	}
 
 	public void setValue(int num) {
@@ -245,6 +281,10 @@ class IntegerType{
 
 	public String getName() {
 		return name;
+	}
+	
+	public String getCaptureName() {
+		return captureName;
 	}
 	
 	public void allotId(int id) {
@@ -258,10 +298,17 @@ class IntegerType{
 
 class CharType{
 	String name;
+	String captureName;
 	char value;
 	int id;
 	public CharType(String name) {
 		this.name = name;
+		this.captureName = name;
+		
+		if(captureName.length() > 8) {
+			captureName = captureName.substring(0, 8);
+		}
+		captureName = captureName.toUpperCase();
 	}
 
 	public void setValue(char letter) {
@@ -270,6 +317,10 @@ class CharType{
 
 	public String getName() {
 		return name;
+	}
+	
+	public String getCaptureName() {
+		return captureName;
 	}
 	
 	public void allotId(int id) {
@@ -283,10 +334,17 @@ class CharType{
 
 class BooleanType{
 	String name;
+	String captureName;
 	boolean value;
 	int id;
 	BooleanType(String name){
 		this.name = name;
+		this.captureName = name;
+		
+		if(captureName.length() > 8) {
+			captureName = captureName.substring(0, 8);
+		}
+		captureName = captureName.toUpperCase();
 	}
 
 	public void setValue(boolean is) {
@@ -295,6 +353,10 @@ class BooleanType{
 
 	public String getName() {
 		return name;
+	}
+	
+	public String getCaptureName() {
+		return captureName;
 	}
 	
 	public void allotId(int id) {
@@ -311,6 +373,7 @@ class ArrayType{
 	protected static final int SCHAR = 4;
 	protected static final int SINTEGER = 11;
 	String name;
+	String captureName;
 	int type;
 	int min;
 	int max;
@@ -324,10 +387,21 @@ class ArrayType{
 		this.type = type;
 		this.min = min;
 		this.max = max;
+		
+		this.captureName = name;
+		
+		if(captureName.length() > 8) {
+			captureName = captureName.substring(0, 8);
+		}
+		captureName = captureName.toUpperCase();
 	}
 
 	public String getName() {
 		return name;
+	}
+	
+	public String getCaptureName() {
+		return captureName;
 	}
 
 	public int getType() {

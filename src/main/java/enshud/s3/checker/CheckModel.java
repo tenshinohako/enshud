@@ -6,13 +6,13 @@ import enshud.s2.parser.ParseModel;
 
 public class CheckModel extends ParseModel {
 
-	private ArrayList<String> wordsList;
-	private Integer semErrorLine = new Integer(-1);
-	boolean isPlus;
+	protected ArrayList<String> wordsList;
+	protected Integer semErrorLine = new Integer(-1);
+	private boolean isPlus;
 
-	private ProcedureModel currentProcedure;
-	private ArrayList<ProcedureModel> procedureList = new ArrayList<ProcedureModel>();
-	ArrayList<String> tempNameList;
+	protected ProcedureModel currentProcedure;
+	protected ArrayList<ProcedureModel> procedureList = new ArrayList<ProcedureModel>();
+	private ArrayList<String> tempNameList;
 	public CheckModel(ArrayList<Integer> list, ArrayList<Integer> list2, ArrayList<String> list3) {
 		super(list, list2);
 		wordsList = list3;
@@ -497,7 +497,7 @@ public class CheckModel extends ParseModel {
 
 	/* ****************************************************************** */
 
-	private void semError() {
+	protected void semError() {
 		if(semErrorLine == -1) {
 			semErrorLine = lineList.get(pointer);
 		}
