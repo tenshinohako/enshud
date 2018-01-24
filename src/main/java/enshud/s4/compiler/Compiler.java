@@ -1,8 +1,5 @@
 package enshud.s4.compiler;
 
-import enshud.casl.CaslSimulator;
-import enshud.s3.checker.CheckModel;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -21,24 +18,24 @@ public class Compiler {
 		// Compilerを実行してcasを生成する
 		//new Compiler().run("data/ts/normal04.ts", "tmp/out.cas");
 		new Compiler().run("data/ts/normal01.ts", "tmp/out.cas");
-		
+
 		// CaslSimulatorクラスを使ってコンパイルしたcasを，CASLアセンブラ & COMETシミュレータで実行する
 		//CaslSimulator.run("tmp/out.cas", "tmp/out.ans", "36", "48");
 	}
 
 	/**
 	 * TODO
-	 * 
+	 *
 	 * 開発対象となるCompiler実行メソッド．
 	 * 以下の仕様を満たすこと．
-	 * 
+	 *
 	 * 仕様:
 	 * 第一引数で指定されたtsファイルを読み込み，CASL IIプログラムにコンパイルする．
 	 * コンパイル結果のCASL IIプログラムは第二引数で指定されたcasファイルに書き出すこと．
 	 * 構文的もしくは意味的なエラーを発見した場合は標準エラーにエラーメッセージを出力すること．
 	 * （エラーメッセージの内容はChecker.run()の出力に準じるものとする．）
 	 * 入力ファイルが見つからない場合は標準エラーに"File not found"と出力して終了すること．
-	 * 
+	 *
 	 * @param inputFileName 入力tsファイル名
 	 * @param outputFileName 出力casファイル名
 	 */
@@ -69,7 +66,7 @@ public class Compiler {
 				if(cm.getSemErrorLine() == -1) {
 
 					ArrayList<String> outList = cm.getOutList();
-					
+
 					File outputFile = new File(outputFileName);
 					BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile));
 					for(String buf: outList) {
@@ -77,9 +74,9 @@ public class Compiler {
 						bw.write("\n");
 					}
 					bw.close();
-					
-					
-					
+
+
+
 					//System.out.println("OK");
 				}else {
 					System.err.println("Semantic error: line " + cm.getSemErrorLine());
