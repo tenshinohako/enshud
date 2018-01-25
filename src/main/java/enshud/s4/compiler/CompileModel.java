@@ -3,6 +3,7 @@ package enshud.s4.compiler;
 import java.util.ArrayList;
 
 import enshud.s3.checker.CheckModel;
+import enshud.s3.checker.ProcedureModel;
 
 public class CompileModel extends CheckModel{
 	//ArrayList<ProcedureModel> procedureList;
@@ -21,12 +22,15 @@ public class CompileModel extends CheckModel{
 	}
 
 	public ArrayList<String> getOutList(){
-		return outList;
+		return procedureList.get(0).getOutList();
 	}
-
+	
 	@Override
 	public void program() {//(1)
-		//pointer++;
+		currentProcedure = new ProcedureModel();
+		currentProcedure.setName(wordsList.get(1));
+		procedureList.add(currentProcedure);
+		
 		String buf = "";
 		String name = wordsList.get(pointer + 1);
 		if(name.length() > 8) {
@@ -34,11 +38,13 @@ public class CompileModel extends CheckModel{
 		}
 		buf += name.toUpperCase();
 		buf += "\tSTART\tBEGIN";
-		outList.add(buf);
-		outList.add("BEGIN\tLAD\tGR6,0");
-		outList.add("\tLAD\tGR7, LIBBUF");
-
-		super.program();
+		currentProcedure.addToList(buf);
+		currentProcedure.addToList("BEGIN\tLAD\tGR6,0");
+		currentProcedure.addToList("\tLAD\tGR7, LIBBUF");
+		
+		header();
+		block();
+		compoundStatement();
 	}
 
 	@Override
@@ -48,13 +54,25 @@ public class CompileModel extends CheckModel{
 
 	@Override
 	protected void assignmentStatement() {//(28)
-		int type = typeLeftSide();
+		currentGR = 0;
 		String leftVar = wordsList.get(pointer);
+		int type = typeLeftSide();
 		if(tokenList.get(pointer++) != SASSIGN) {
 			synError();
 		}
 		if(typeFormula() != type) {
 			semError();
+		}
+		int varType;
+		if((varType = currentProcedure.getType(leftVar, 1)) == -1) {
+			varType = procedureList.get(0).getType(leftVar, 1);
+		}else {
+			
+		}
+		if(varType == SARRAY) {
+			currentProcedure.addToList("\tST\tGR2, " + currentProcedure.getCaptureName(leftVar) + ", GR1");
+		}else {
+			currentProcedure.addToList("\tST\tGR1, " + currentProcedure.getCaptureName(leftVar));
 		}
 	}
 
@@ -67,7 +85,7 @@ public class CompileModel extends CheckModel{
 	protected int typePureFormula() {//(37)
 		int type = -1;
 		int expectedType;
-		currentGR = 0;
+		//currentGR = 0;
 		switch(tokenList.get(pointer++)) {
 		case SPLUS:
 			isMinus = false;
@@ -92,7 +110,7 @@ public class CompileModel extends CheckModel{
 		expectedType = type;
 		while(true) {
 			int ope = typeAdditiveOpe();
-			if(ope == SINTEGER) {
+			if(ope == SPLUS) {
 				if(expectedType != SINTEGER) {
 					semError();
 				}
@@ -100,6 +118,18 @@ public class CompileModel extends CheckModel{
 				if(type != SINTEGER) {
 					semError();
 				}
+				currentProcedure.addToList("\tADDA\tGR" + (currentGR - 1) + ", GR" + (currentGR));
+				currentGR--;
+			}else if(ope == SMINUS) {
+				if(expectedType != SINTEGER) {
+					semError();
+				}
+				type = typeTerm();
+				if(type != SINTEGER) {
+					semError();
+				}
+				currentProcedure.addToList("\tSUBA\tGR" + (currentGR - 1) + ", GR" + (currentGR));
+				currentGR--;
 			}else if(ope == SBOOLEAN){
 				if(expectedType != SBOOLEAN) {
 					semError();
@@ -108,6 +138,8 @@ public class CompileModel extends CheckModel{
 				if(type != SBOOLEAN) {
 					semError();
 				}
+				currentProcedure.addToList("\tOR\tGR" + (currentGR - 1) + ", GR" + (currentGR));
+				currentGR--;
 			}else {
 				pointer--;
 				break;
@@ -127,30 +159,38 @@ public class CompileModel extends CheckModel{
 					semError();
 				}
 				type = typeFactor();
-				outList.add("\tPUSH\t0,GR1");
-				outList.add("\tPUSH\t0,GR2");
-				outList.add("\tLD\tGR1, GR" + (currentGR - 1));
-				outList.add("\tLD\tGR2, GR" + (currentGR));
-
-				if(ope == SSTAR) {
-					outList.add("\tCALL\tMULT");
-					outList.add("\tLD\tGR" + (currentGR - 1) +", GR2");
-				}else {
-					outList.add("\tCALL\tDIV");
-					if(ope == SDIVD) {
-						outList.add("\tLD\tGR" + (currentGR - 1) +", GR2");
-					}else {
-						outList.add("\tLD\tGR" + (currentGR - 1) +", GR1");
-					}
-				}
-				outList.add("\tPOP\tGR2");
-				outList.add("\tPOP\tGR1");
-
-				currentGR--;
 
 				if(type != SINTEGER) {
 					semError();
 				}
+				if(currentGR > 2) {
+					currentProcedure.addToList("\tPUSH\t0,GR1");
+				}
+				if(currentGR > 3) {
+					currentProcedure.addToList("\tPUSH\t0,GR2");
+				}
+				currentProcedure.addToList("\tLD\tGR1, GR" + (currentGR - 1));
+				currentProcedure.addToList("\tLD\tGR2, GR" + (currentGR));
+
+				if(ope == SSTAR) {
+					currentProcedure.addToList("\tCALL\tMULT");
+					currentProcedure.addToList("\tLD\tGR" + (currentGR - 1) +", GR2");
+				}else {
+					currentProcedure.addToList("\tCALL\tDIV");
+					if(ope == SDIVD) {
+						currentProcedure.addToList("\tLD\tGR" + (currentGR - 1) +", GR2");
+					}else {
+						currentProcedure.addToList("\tLD\tGR" + (currentGR - 1) +", GR1");
+					}
+				}
+				if(currentGR > 3) {
+					currentProcedure.addToList("\tPOP\tGR2");
+				}
+				if(currentGR > 2) {
+					currentProcedure.addToList("\tPOP\tGR1");
+				}
+
+				currentGR--;
 			}else if(ope == SAND) {
 				if(expectedType != SBOOLEAN) {
 					semError();
@@ -159,6 +199,7 @@ public class CompileModel extends CheckModel{
 				if(type != SBOOLEAN) {
 					semError();
 				}
+				currentProcedure.addToList("\tAND\tGR" + (currentGR - 1) + ", GR" + (currentGR));
 			}else {
 				pointer--;
 				break;
@@ -190,7 +231,9 @@ public class CompileModel extends CheckModel{
 			if(typeFactor() != SBOOLEAN) {
 				semError();
 			}
-			outList.add("\tXOR\tGR" + currentGR + ", =1");
+			currentProcedure.addToList("\tPOP\tGR1");
+			currentProcedure.addToList("\tXOR\tGR1, =1");
+			currentProcedure.addToList("\tPUSH\t0, GR1");
 			return SBOOLEAN;
 		default:
 			pointer--;
@@ -204,26 +247,23 @@ public class CompileModel extends CheckModel{
 		case SCONSTANT:
 			pointer--;
 			unsignedInteger();
-			if(isMinus) {
-				outList.add("\tLD\tGR" + ++currentGR + ", =-" + Integer.parseInt(wordsList.get(pointer - 1)));
-			}else {
-				outList.add("\tLD\tGR" + ++currentGR + ", =" + Integer.parseInt(wordsList.get(pointer - 1)));
-			}
+			currentProcedure.addToList("\tPUSH\tGR1, =" + Integer.parseInt(wordsList.get(pointer - 1)));
 			return SINTEGER;
 		case SSTRING:
 			pointer--;
 			string();
 			if(wordsList.get(pointer - 1).length() <= 3) {
-				outList.add("\tLD\tGR" + ++currentGR + ", =" + wordsList.get(pointer - 1));
+				currentProcedure.addToList("\tLD\tGR1, =" + wordsList.get(pointer - 1));
+				currentProcedure.addToList("\tPUSH\t0, GR1");
 				return SCHAR;
 			}else {
 				return SSTRING;
 			}
 		case SFALSE:
-			outList.add("\tLD\tGR" + ++currentGR + ", =0");
+			currentProcedure.addToList("\tPUSH\t=0");
 			return SBOOLEAN;
 		case STRUE:
-			outList.add("\tLD\tGR" + ++currentGR + ", =1");
+			currentProcedure.addToList("\tPUSH\t=1");
 			return SBOOLEAN;
 		default:
 			synError();
@@ -235,8 +275,9 @@ public class CompileModel extends CheckModel{
 	protected int typeAdditiveOpe() {//(41)
 		switch(tokenList.get(pointer++)) {
 		case SPLUS:
+			return SPLUS;
 		case SMINUS:
-			return SINTEGER;
+			return SMINUS;
 		case SOR:
 			return SBOOLEAN;
 		default:
@@ -297,7 +338,8 @@ public class CompileModel extends CheckModel{
 					}else {
 
 					}
-					outList.add("\tLD\tGR" + currentGR + ", " + name);
+					currentProcedure.addToList("\tLD\tGR1, " + name);
+					currentProcedure.addToList("\tPUSH\t0, GR1");
 				}
 			}
 		}else {

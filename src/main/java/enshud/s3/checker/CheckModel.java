@@ -32,14 +32,22 @@ public class CheckModel extends ParseModel {
 			index = pro.allotId(index);
 		}
 	}
-
+	
 	@Override
-	protected void block() {//(4)
+	public void program() {//(1)
 		currentProcedure = new ProcedureModel();
 		currentProcedure.setName(wordsList.get(1));
-		varDecl();
 		procedureList.add(currentProcedure);
+		header();
+		block();
+		compoundStatement();
+	}
+	
+	@Override
+	protected void block() {
+		varDecl();
 		subprogramDecls();
+		currentProcedure = procedureList.get(0);
 	}
 
 	@Override

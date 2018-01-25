@@ -3,6 +3,7 @@ package enshud.s3.checker;
 import java.util.ArrayList;
 
 public class ProcedureModel {
+	protected static final int SARRAY = 1;
 	protected static final int SBOOLEAN = 3;
 	protected static final int SCHAR = 4;
 	protected static final int SINTEGER = 11;
@@ -11,10 +12,19 @@ public class ProcedureModel {
 	private ArrayList<CharType> charList = new ArrayList<CharType>();
 	private ArrayList<BooleanType> booleanList = new ArrayList<BooleanType>();
 	private ArrayList<ArrayType> arrayList = new ArrayList<ArrayType>();
+	private ArrayList<String> outList = new ArrayList<String>();
 
 	private String procedureName;
 	private int beginId;
 	private int endId;
+	
+	public ArrayList<String> getOutList(){
+		return outList;
+	}
+	
+	public void addToList(String str) {
+		outList.add(str);
+	}
 	
 	public String getCaptureName(String varName) {
 		if(existsInIntegerList(varName)) {
@@ -192,6 +202,42 @@ public class ProcedureModel {
 		}
 		arrayList.add(varAdded);
 		return true;
+	}
+	
+	public int getType(String name, int mode) {
+		if(!integerList.isEmpty()) {
+			for(IntegerType integerVar: integerList) {
+				if(name.equals(integerVar.getName())) {
+					return SINTEGER;
+				}
+			}
+		}
+
+		if(!charList.isEmpty()) {
+			for(CharType charVar: charList) {
+				if(name.equals(charVar.getName())) {
+					return SCHAR;
+				}
+			}
+		}
+
+		if(!booleanList.isEmpty()) {
+			for(BooleanType booleanVar: booleanList) {
+				if(name.equals(booleanVar.getName())) {
+					return SBOOLEAN;
+				}
+			}
+		}
+
+		if(!arrayList.isEmpty()) {
+			for(ArrayType arrayVar: arrayList) {
+				if(name.equals(arrayVar.getName())) {
+					return SARRAY;
+				}
+			}
+		}
+
+		return -1;
 	}
 
 	public int getType(String name) {

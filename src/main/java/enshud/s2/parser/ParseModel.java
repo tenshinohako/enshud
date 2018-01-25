@@ -70,7 +70,7 @@ public class ParseModel {
 		compoundStatement();
 	}
 
-	private void header() {
+	protected void header() {
 		if(tokenList.get(pointer++) != SPROGRAM) {
 			synError();
 		}
