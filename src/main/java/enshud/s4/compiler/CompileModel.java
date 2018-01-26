@@ -10,7 +10,11 @@ public class CompileModel extends CheckModel{
 	//ArrayList<Integer> tokenList;
 	//ProcedureModel currentProcedure;
 
-	private ArrayList<String> outList = new ArrayList<String>();
+	//private ArrayList<String> outList = new ArrayList<String>();
+	private int branchNum = 0;
+	private int ifNum = 0;
+	private int whileNum = 0;
+	private int stringNum = 0;
 	//int pointer = 0;
 
 
@@ -20,7 +24,17 @@ public class CompileModel extends CheckModel{
 	}
 
 	public ArrayList<String> getOutList(){
-		return procedureList.get(0).getOutList();
+		ArrayList<String> list = new ArrayList<String>();
+		for(ProcedureModel pro: procedureList) {
+			list.addAll(pro.getCompoundList());
+			list.addAll(pro.getVarList());
+			list.addAll(pro.getConstantList());
+		}
+
+		list.addAll(procedureList.get(0).getCompoundList());
+		list.addAll(procedureList.get(0).getVarList());
+		list.addAll(procedureList.get(0).getConstantList());
+		return list;
 	}
 
 	@Override
@@ -43,11 +57,76 @@ public class CompileModel extends CheckModel{
 		header();
 		block();
 		compoundStatement();
+		currentProcedure.addToList("\tRET");
+	}
+
+	@Override
+	protected void subprogramDecl() {//(17)
+		currentProcedure = new ProcedureModel();
+		currentProcedure.setName(wordsList.get(pointer + 1));
+		procedureList.add(currentProcedure);
+		currentProcedure.addToList(currentProcedure.getCaptureName() + "\tNOP");
+		subprogramHeader();
+		varDecl();
+		compoundStatement();
 	}
 
 	@Override
 	protected void statement() {//(26)
-		super.statement();
+		switch(tokenList.get(pointer++)) {
+		case SIF:
+			int subIfNum = ifNum++;
+			if(typeFormula() != SBOOLEAN) {
+				semError();
+			}
+
+			currentProcedure.addToList("\tPOP\tGR1");
+			currentProcedure.addToList("\tCPA\tGR1, =1");
+			currentProcedure.addToList("\tJNZ\tIFF" + subIfNum);
+
+			if(tokenList.get(pointer++) != STHEN) {
+				synError();
+			}
+			compoundStatement();
+
+			currentProcedure.addToList("\tJUMP\tIFA" + subIfNum);
+			currentProcedure.addToList("IFF" + subIfNum + "\tNOP");
+
+			if(tokenList.get(pointer++) != SELSE) {
+				pointer--;
+			}else {
+				compoundStatement();
+			}
+
+			currentProcedure.addToList("IFA" + subIfNum + "\tNOP");
+			break;
+		case SWHILE:
+			int subWhileNum = whileNum++;
+
+			currentProcedure.addToList("WHL" + subWhileNum + "\tNOP");
+
+			if(typeFormula() != SBOOLEAN) {
+				semError();
+			}
+
+			currentProcedure.addToList("\tPOP\tGR1");
+			currentProcedure.addToList("\tCPA\tGR1, =1");
+			currentProcedure.addToList("\tJNZ\tWHE" + subWhileNum);
+
+			if(tokenList.get(pointer++) != SDO) {
+				synError();
+			}
+			statement();
+
+			currentProcedure.addToList("\tJUMP\tWHL" + subWhileNum);
+			currentProcedure.addToList("WHE" + subWhileNum + "\tNOP");
+
+
+			break;
+		default:
+			pointer--;
+			basicStatement();
+		}
 	}
 
 	@Override
@@ -67,9 +146,40 @@ public class CompileModel extends CheckModel{
 
 		}
 		if(varType == SARRAY) {
+			currentProcedure.addToList("\tPOP\tGR2");
+			currentProcedure.addToList("\tPOP\tGR1");
 			currentProcedure.addToList("\tST\tGR2, " + currentProcedure.getCaptureName(leftVar) + ", GR1");
 		}else {
+			currentProcedure.addToList("\tPOP\tGR1");
 			currentProcedure.addToList("\tST\tGR1, " + currentProcedure.getCaptureName(leftVar));
+		}
+	}
+
+	protected void inOutString() {//(43)
+		switch(tokenList.get(pointer++)) {
+		case SREADLN:
+			if(tokenList.get(pointer++) != SLPAREN) {
+				pointer--;
+			}else {
+				seqOfVars();
+				if(tokenList.get(pointer++) != SRPAREN) {
+					synError();
+				}
+			}
+			break;
+		case SWRITELN:
+			if(tokenList.get(pointer++) != SLPAREN) {
+				pointer--;
+			}else {
+				writeSeqOfFormulae();
+				if(tokenList.get(pointer++) != SRPAREN) {
+					synError();
+				}
+			}
+			break;
+		default:
+			synError();
+			break;
 		}
 	}
 
@@ -77,6 +187,72 @@ public class CompileModel extends CheckModel{
 
 
 	/* ****************************************************************** */
+	protected void typeVar() {//(30)
+		varName();
+		if(!currentProcedure.existsInProcedure(wordsList.get(pointer - 1))) {
+			if(currentProcedure != procedureList.get(0)) {
+				if(!procedureList.get(0).existsInProcedure(wordsList.get(pointer - 1))){
+					semError();
+				}
+			}else {
+				semError();
+			}
+		}
+		if(tokenList.get(pointer++) != SLBRACKET) {
+			pointer--;
+			if(currentProcedure.isArrayType(wordsList.get(pointer - 1))) {
+				if(tokenList.get(pointer - 3) != SWRITELN) {
+					semError();
+				}
+			}else {
+				if(procedureList.get(0).isArrayType(wordsList.get(pointer - 1))) {
+					if(tokenList.get(pointer - 3) != SWRITELN) {
+						semError();
+					}
+				}else {
+					String name;
+					if((name = currentProcedure.getCaptureName(wordsList.get(pointer - 1))) == "") {
+						if((name = procedureList.get(0).getCaptureName(wordsList.get(pointer - 1))) == "") {
+
+						}else {
+
+						}
+
+					}else {
+
+					}
+					currentProcedure.addToList("\tLD\tGR1, " + name);
+					currentProcedure.addToList("\tPUSH\t0, GR1");
+				}
+			}
+		}else {
+			if(!currentProcedure.isArrayType(wordsList.get(pointer - 2))) {
+				if(!procedureList.get(0).isArrayType(wordsList.get(pointer - 2))) {
+				semError();
+				}
+			}
+			String name;
+			if((name = currentProcedure.getCaptureName(wordsList.get(pointer - 2))) == "") {
+				if((name = procedureList.get(0).getCaptureName(wordsList.get(pointer - 2))) == "") {
+
+				}else {
+
+				}
+
+			}else {
+
+			}
+
+			suffix();
+			currentProcedure.addToList("\tPOP\tGR2");
+			currentProcedure.addToList("\tLD\tGR1, " + name + ", GR2");
+			currentProcedure.addToList("\tPUSH\t0, GR1");
+
+			if(tokenList.get(pointer++) != SRBRACKET) {
+				synError();
+			}
+		}
+	}
 
 	@Override
 	protected int typeFormula() {//(36)
@@ -84,16 +260,41 @@ public class CompileModel extends CheckModel{
 		int ope;
 		if((ope = typeRelationalOpe()) != -1) {
 			if(typePureFormula() == type) {
+				currentProcedure.addToList("\tPOP\tGR2");
+				currentProcedure.addToList("\tPOP\tGR1");
+				currentProcedure.addToList("\tCPA\tGR1, GR2");
+				switch(ope) {
+				case SEQUAL:
+					currentProcedure.addToList("\tJZE\tTRUE" + branchNum);
+					break;
+				case SNOTEQUAL:
+					currentProcedure.addToList("\tJNZ\tTRUE" + branchNum);
+					break;
+				case SLESS:
+					currentProcedure.addToList("\tJMI\tTRUE" + branchNum);
+					break;
+				case SLESSEQUAL:
+					currentProcedure.addToList("\tJZE\tTRUE" + branchNum);
+					currentProcedure.addToList("\tJMI\tTRUE" + branchNum);
+					break;
+				case SGREAT:
+					currentProcedure.addToList("\tJPL\tTRUE" + branchNum);
+					break;
+				case SGREATEQUAL:
+					currentProcedure.addToList("\tJZE\tTRUE" + branchNum);
+					currentProcedure.addToList("\tJPL\tTRUE" + branchNum);
+					break;
+				}
+				currentProcedure.addToList("FALSE" + branchNum + "\tPUSH\t0");
+				currentProcedure.addToList("\tJUMP\tALL" + branchNum);
+				currentProcedure.addToList("TRUE" + branchNum + "\tPUSH\t1");
+				currentProcedure.addToList("ALL" + branchNum + "\tNOP");
+				branchNum++;
 				return SBOOLEAN;
 			}else {
 				semError();
 				return -1;
 			}
-			//currentProcedure.addToList("\tPOP\tGR2");
-			//currentProcedure.addToList("\tPOP\tGR1");
-
-
-
 		}else {
 			pointer--;
 			return type;
@@ -264,32 +465,21 @@ public class CompileModel extends CheckModel{
 		}
 	}
 
-	@Override
-	protected int typeConstant() {//(45)
+	protected int typeRelationalOpe() {//(40)
 		switch(tokenList.get(pointer++)) {
-		case SCONSTANT:
-			pointer--;
-			unsignedInteger();
-			currentProcedure.addToList("\tPUSH\tGR1, =" + Integer.parseInt(wordsList.get(pointer - 1)));
-			return SINTEGER;
-		case SSTRING:
-			pointer--;
-			string();
-			if(wordsList.get(pointer - 1).length() <= 3) {
-				currentProcedure.addToList("\tLD\tGR1, =" + wordsList.get(pointer - 1));
-				currentProcedure.addToList("\tPUSH\t0, GR1");
-				return SCHAR;
-			}else {
-				return SSTRING;
-			}
-		case SFALSE:
-			currentProcedure.addToList("\tPUSH\t=0");
-			return SBOOLEAN;
-		case STRUE:
-			currentProcedure.addToList("\tPUSH\t=1");
-			return SBOOLEAN;
+		case SEQUAL:
+			return SEQUAL;
+		case SNOTEQUAL:
+			return SNOTEQUAL;
+		case SLESS:
+			return SLESS;
+		case SLESSEQUAL:
+			return SLESSEQUAL;
+		case SGREAT:
+			return SGREAT;
+		case SGREATEQUAL:
+			return SGREATEQUAL;
 		default:
-			synError();
 			return -1;
 		}
 	}
@@ -324,94 +514,75 @@ public class CompileModel extends CheckModel{
 		}
 	}
 
-	protected int typeRelationalOpe() {//(40)
+	@Override
+	protected int typeConstant() {//(45)
 		switch(tokenList.get(pointer++)) {
-		case SEQUAL:
-			return SEQUAL;
-		case SNOTEQUAL:
-			return SNOTEQUAL;
-		case SLESS:
-			return SLESS;
-		case SLESSEQUAL:
-			return SLESSEQUAL;
-		case SGREAT:
-			return SGREAT;
-		case SGREATEQUAL:
-			return SGREATEQUAL;
+		case SCONSTANT:
+			pointer--;
+			unsignedInteger();
+			currentProcedure.addToList("\tPUSH\t" + Integer.parseInt(wordsList.get(pointer - 1)));
+			return SINTEGER;
+		case SSTRING:
+			pointer--;
+			string();
+			if(wordsList.get(pointer - 1).length() <= 3) {
+				currentProcedure.addToList("\tLD\tGR1, =" + wordsList.get(pointer - 1));
+				currentProcedure.addToList("\tPUSH\t0, GR1");
+				return SCHAR;
+			}else {
+				currentProcedure.addToList("\tPUSH\t" + (wordsList.get(pointer - 1).length() - 2));
+				currentProcedure.addToConstantList("STR" + stringNum + "\tDC\t" + wordsList.get(pointer - 1));
+				return SSTRING;
+			}
+		case SFALSE:
+			currentProcedure.addToList("\tPUSH\t0");
+			return SBOOLEAN;
+		case STRUE:
+			currentProcedure.addToList("\tPUSH\t1");
+			return SBOOLEAN;
 		default:
+			synError();
 			return -1;
 		}
 	}
 
-
 	/* ****************************************************************** */
 
-	protected void typeVar() {//(30)
-		varName();
-		if(!currentProcedure.existsInProcedure(wordsList.get(pointer - 1))) {
-			if(currentProcedure != procedureList.get(0)) {
-				if(!procedureList.get(0).existsInProcedure(wordsList.get(pointer - 1))){
-					semError();
-				}
+
+	protected void writeSeqOfFormulae() {//(35)
+		writeLine();
+		while(true) {
+			if(tokenList.get(pointer++) != SCOMMA) {
+				pointer--;
+				break;
 			}else {
-				semError();
+				writeLine();
 			}
 		}
-		if(tokenList.get(pointer++) != SLBRACKET) {
-			pointer--;
-			if(currentProcedure.isArrayType(wordsList.get(pointer - 1))) {
-				if(tokenList.get(pointer - 3) != SWRITELN) {
-					semError();
-				}
-			}else {
-				if(procedureList.get(0).isArrayType(wordsList.get(pointer - 1))) {
-					if(tokenList.get(pointer - 3) != SWRITELN) {
-						semError();
-					}
-				}else {
-					String name;
-					if((name = currentProcedure.getCaptureName(wordsList.get(pointer - 1))) == "") {
-						if((name = procedureList.get(0).getCaptureName(wordsList.get(pointer - 1))) == "") {
+		currentProcedure.addToList("\tCALL\tWRTLN");
+	}
 
-						}else {
-
-						}
-
-					}else {
-
-					}
-					currentProcedure.addToList("\tLD\tGR1, " + name);
-					currentProcedure.addToList("\tPUSH\t0, GR1");
-				}
-			}
-		}else {
-			if(!currentProcedure.isArrayType(wordsList.get(pointer - 2))) {
-				if(!procedureList.get(0).isArrayType(wordsList.get(pointer - 2))) {
-				semError();
-				}
-			}
-			String name;
-			if((name = currentProcedure.getCaptureName(wordsList.get(pointer - 2))) == "") {
-				if((name = procedureList.get(0).getCaptureName(wordsList.get(pointer - 2))) == "") {
-
-				}else {
-
-				}
-
-			}else {
-
-			}
-
-			suffix();
+	private void writeLine() {
+		int type = typeFormula();
+		switch(type) {
+		case SINTEGER:
 			currentProcedure.addToList("\tPOP\tGR2");
-			currentProcedure.addToList("\tLD\tGR1, " + name + ", GR2");
-			currentProcedure.addToList("\tPUSH\t0, GR1");
-
-			if(tokenList.get(pointer++) != SRBRACKET) {
-				synError();
-			}
+			currentProcedure.addToList("\tCALL\tWRTINT");
+			break;
+		case SCHAR:
+			currentProcedure.addToList("\tPOP\tGR2");
+			currentProcedure.addToList("\tCALL\tWRTCH");
+			break;
+		case SSTRING:
+			currentProcedure.addToList("\tPOP\tGR1");
+			currentProcedure.addToList("\tLAD\tGR2, STR" + (stringNum++));
+			currentProcedure.addToList("\tCALL\tWRTSTR");
+			break;
 		}
 	}
 
+
+
+	/* ****************************************************************** */
 
 }

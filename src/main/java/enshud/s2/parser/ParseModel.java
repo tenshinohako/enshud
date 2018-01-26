@@ -256,7 +256,7 @@ public class ParseModel {
 		compoundStatement();
 	}
 
-	private void subprogramHeader() {//(18)
+	protected void subprogramHeader() {//(18)
 		if(tokenList.get(pointer++) != SPROCEDURE) {
 			synError();
 		}
@@ -576,7 +576,7 @@ public class ParseModel {
 		}
 	}
 
-	private void inOutString() {//(43)
+	protected void inOutString() {//(43)
 		switch(tokenList.get(pointer++)) {
 		case SREADLN:
 			if(tokenList.get(pointer++) != SLPAREN) {
@@ -604,7 +604,7 @@ public class ParseModel {
 		}
 	}
 
-	private void seqOfVars() {//(44)
+	protected void seqOfVars() {//(44)
 		var();
 		while(true) {
 			if(tokenList.get(pointer++) != SCOMMA) {

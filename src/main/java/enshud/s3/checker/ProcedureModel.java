@@ -12,20 +12,55 @@ public class ProcedureModel {
 	private ArrayList<CharType> charList = new ArrayList<CharType>();
 	private ArrayList<BooleanType> booleanList = new ArrayList<BooleanType>();
 	private ArrayList<ArrayType> arrayList = new ArrayList<ArrayType>();
-	private ArrayList<String> outList = new ArrayList<String>();
+	private ArrayList<String> compoundList = new ArrayList<String>();
+	private ArrayList<String> constantList = new ArrayList<String>();
 
 	private String procedureName;
+	private String captureProcedureName;
 	private int beginId;
 	private int endId;
-	
-	public ArrayList<String> getOutList(){
-		return outList;
+
+	public ArrayList<String> getConstantList(){
+		constantList.add("\tEND");
+		return constantList;
 	}
-	
+
+	public void addToConstantList(String str) {
+		constantList.add(str);
+	}
+
+	public ArrayList<String> getVarList(){
+		ArrayList<String> list = new ArrayList<String>();
+
+		for(int i=0; i<integerList.size(); i++) {
+			list.add(integerList.get(i).getCaptureName() + "\tDS\t1");
+		}
+
+		for(int i=0; i<charList.size(); i++) {
+			list.add(charList.get(i).getCaptureName() + "\tDS\t1");
+		}
+
+		for(int i=0; i<booleanList.size(); i++) {
+			list.add(booleanList.get(i).getCaptureName() + "\tDS\t1");
+		}
+
+		for(int i=0; i<arrayList.size(); i++) {
+			list.add(arrayList.get(i).getCaptureName() + "\tDS\t" + arrayList.get(i).getMax());
+		}
+
+		list.add("LIBBUF\tDS\t256");
+
+		return list;
+	}
+
+	public ArrayList<String> getCompoundList(){
+		return compoundList;
+	}
+
 	public void addToList(String str) {
-		outList.add(str);
+		compoundList.add(str);
 	}
-	
+
 	public String getCaptureName(String varName) {
 		if(existsInIntegerList(varName)) {
 			for(IntegerType var: integerList) {
@@ -54,7 +89,7 @@ public class ProcedureModel {
 		}
 		return "";
 	}
-	
+
 	public int allotId(int begin) {
 		beginId = begin;
 		int index = begin;
@@ -76,7 +111,7 @@ public class ProcedureModel {
 		endId = index - 1;
 		return index;
 	}
-	
+
 	public boolean existsInProcedure(int id) {
 		if(beginId <= id && id <= endId) {
 			return true;
@@ -203,7 +238,7 @@ public class ProcedureModel {
 		arrayList.add(varAdded);
 		return true;
 	}
-	
+
 	public int getType(String name, int mode) {
 		if(!integerList.isEmpty()) {
 			for(IntegerType integerVar: integerList) {
@@ -298,6 +333,17 @@ public class ProcedureModel {
 
 	public void setName(String name) {
 		procedureName = name;
+
+		captureProcedureName = name;
+
+		if(captureProcedureName.length() > 8) {
+			captureProcedureName = captureProcedureName.substring(0, 8);
+		}
+		captureProcedureName = captureProcedureName.toUpperCase();
+	}
+
+	public String getCaptureName() {
+		return captureProcedureName;
 	}
 
 	public String getName() {
@@ -314,7 +360,7 @@ class IntegerType{
 	public IntegerType(String name) {
 		this.name = name;
 		this.captureName = name;
-		
+
 		if(captureName.length() > 8) {
 			captureName = captureName.substring(0, 8);
 		}
@@ -328,15 +374,15 @@ class IntegerType{
 	public String getName() {
 		return name;
 	}
-	
+
 	public String getCaptureName() {
 		return captureName;
 	}
-	
+
 	public void allotId(int id) {
 		this.id = id;
 	}
-	
+
 	public int getId() {
 		return id;
 	}
@@ -350,7 +396,7 @@ class CharType{
 	public CharType(String name) {
 		this.name = name;
 		this.captureName = name;
-		
+
 		if(captureName.length() > 8) {
 			captureName = captureName.substring(0, 8);
 		}
@@ -364,15 +410,15 @@ class CharType{
 	public String getName() {
 		return name;
 	}
-	
+
 	public String getCaptureName() {
 		return captureName;
 	}
-	
+
 	public void allotId(int id) {
 		this.id = id;
 	}
-	
+
 	public int getId() {
 		return id;
 	}
@@ -386,7 +432,7 @@ class BooleanType{
 	BooleanType(String name){
 		this.name = name;
 		this.captureName = name;
-		
+
 		if(captureName.length() > 8) {
 			captureName = captureName.substring(0, 8);
 		}
@@ -400,15 +446,15 @@ class BooleanType{
 	public String getName() {
 		return name;
 	}
-	
+
 	public String getCaptureName() {
 		return captureName;
 	}
-	
+
 	public void allotId(int id) {
 		this.id = id;
 	}
-	
+
 	public int getId() {
 		return id;
 	}
@@ -433,9 +479,9 @@ class ArrayType{
 		this.type = type;
 		this.min = min;
 		this.max = max;
-		
+
 		this.captureName = name;
-		
+
 		if(captureName.length() > 8) {
 			captureName = captureName.substring(0, 8);
 		}
@@ -445,7 +491,7 @@ class ArrayType{
 	public String getName() {
 		return name;
 	}
-	
+
 	public String getCaptureName() {
 		return captureName;
 	}
@@ -453,14 +499,18 @@ class ArrayType{
 	public int getType() {
 		return type;
 	}
-	
+
 	public int allotId(int begin) {
 		id = begin;
 		return id + ((max - min) + 1);
 	}
-	
+
 	public int getId() {
 		return id;
+	}
+
+	public int getMax() {
+		return max;
 	}
 
 }

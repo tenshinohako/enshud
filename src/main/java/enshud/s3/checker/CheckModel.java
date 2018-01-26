@@ -21,18 +21,18 @@ public class CheckModel extends ParseModel {
 	public int getSemErrorLine() {
 		return semErrorLine;
 	}
-	
+
 	public ArrayList<ProcedureModel> getProcedureList() {
 		return procedureList;
 	}
-	
+
 	public void allotId() {
 		int index = 0;
 		for(ProcedureModel pro: procedureList) {
 			index = pro.allotId(index);
 		}
 	}
-	
+
 	@Override
 	public void program() {//(1)
 		currentProcedure = new ProcedureModel();
@@ -42,7 +42,7 @@ public class CheckModel extends ParseModel {
 		block();
 		compoundStatement();
 	}
-	
+
 	@Override
 	protected void block() {
 		varDecl();
@@ -162,7 +162,9 @@ public class CheckModel extends ParseModel {
 		currentProcedure = new ProcedureModel();
 		currentProcedure.setName(wordsList.get(pointer + 1));
 		procedureList.add(currentProcedure);
-		super.subprogramDecl();
+		subprogramHeader();
+		varDecl();
+		compoundStatement();
 	}
 
 	@Override
@@ -256,7 +258,7 @@ public class CheckModel extends ParseModel {
 				semError();
 				}
 			}
-			
+
 			suffix();
 			if(tokenList.get(pointer++) != SRBRACKET) {
 				synError();
@@ -443,29 +445,6 @@ public class CheckModel extends ParseModel {
 		}
 	}
 
-	protected int typeConstant() {//(45)
-		switch(tokenList.get(pointer++)) {
-		case SCONSTANT:
-			pointer--;
-			unsignedInteger();
-			return SINTEGER;
-		case SSTRING:
-			pointer--;
-			string();
-			if(wordsList.get(pointer - 1).length() <= 3) {
-				return SCHAR;
-			}else {
-				return SSTRING;
-			}
-		case SFALSE:
-		case STRUE:
-			return SBOOLEAN;
-		default:
-			synError();
-			return -1;
-		}
-	}
-
 	protected int typeAdditiveOpe() {//(41)
 		switch(tokenList.get(pointer++)) {
 		case SPLUS:
@@ -487,6 +466,29 @@ public class CheckModel extends ParseModel {
 		case SAND:
 			return SBOOLEAN;
 		default:
+			return -1;
+		}
+	}
+
+	protected int typeConstant() {//(45)
+		switch(tokenList.get(pointer++)) {
+		case SCONSTANT:
+			pointer--;
+			unsignedInteger();
+			return SINTEGER;
+		case SSTRING:
+			pointer--;
+			string();
+			if(wordsList.get(pointer - 1).length() <= 3) {
+				return SCHAR;
+			}else {
+				return SSTRING;
+			}
+		case SFALSE:
+		case STRUE:
+			return SBOOLEAN;
+		default:
+			synError();
 			return -1;
 		}
 	}
