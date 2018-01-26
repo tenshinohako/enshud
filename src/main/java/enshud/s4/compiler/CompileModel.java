@@ -2,7 +2,10 @@ package enshud.s4.compiler;
 
 import java.util.ArrayList;
 
+import enshud.s3.checker.BooleanType;
+import enshud.s3.checker.CharType;
 import enshud.s3.checker.CheckModel;
+import enshud.s3.checker.IntegerType;
 import enshud.s3.checker.ProcedureModel;
 
 public class CompileModel extends CheckModel{
@@ -15,6 +18,7 @@ public class CompileModel extends CheckModel{
 	private int ifNum = 0;
 	private int whileNum = 0;
 	private int stringNum = 0;
+	private int idNum = 1;
 	//int pointer = 0;
 
 
@@ -27,13 +31,15 @@ public class CompileModel extends CheckModel{
 		ArrayList<String> list = new ArrayList<String>();
 		for(ProcedureModel pro: procedureList) {
 			list.addAll(pro.getCompoundList());
+		}
+		for(ProcedureModel pro: procedureList) {
 			list.addAll(pro.getVarList());
+		}
+		list.add("LIBBUF\tDS\t256");
+		for(ProcedureModel pro: procedureList) {
 			list.addAll(pro.getConstantList());
 		}
-
-		list.addAll(procedureList.get(0).getCompoundList());
-		list.addAll(procedureList.get(0).getVarList());
-		list.addAll(procedureList.get(0).getConstantList());
+		list.add("\tEND");
 		return list;
 	}
 
@@ -42,6 +48,7 @@ public class CompileModel extends CheckModel{
 		currentProcedure = new ProcedureModel();
 		currentProcedure.setName(wordsList.get(1));
 		procedureList.add(currentProcedure);
+		currentProcedure.thisIsMain();
 
 		String buf = "";
 		String name = wordsList.get(pointer + 1);
@@ -65,10 +72,21 @@ public class CompileModel extends CheckModel{
 		currentProcedure = new ProcedureModel();
 		currentProcedure.setName(wordsList.get(pointer + 1));
 		procedureList.add(currentProcedure);
+		currentProcedure.setId(idNum++);
 		currentProcedure.addToList(currentProcedure.getCaptureName() + "\tNOP");
 		subprogramHeader();
 		varDecl();
 		compoundStatement();
+		currentProcedure.addToList("\tRET");
+	}
+
+	@Override
+	protected void elementOfSeqOfTempParameters() {//(21.5)
+		seqOfTempParameterNames();
+		if(tokenList.get(pointer++) != SCOLON) {
+			synError();
+		}
+		tempStandardType();
 	}
 
 	@Override
@@ -140,19 +158,62 @@ public class CompileModel extends CheckModel{
 			semError();
 		}
 		int varType;
-		if((varType = currentProcedure.getType(leftVar, 1)) == -1) {
-			varType = procedureList.get(0).getType(leftVar, 1);
+		if(currentProcedure.isMain()) {
+			varType = currentProcedure.getType(leftVar, 1);
+			leftVar = currentProcedure.getCaptureName(leftVar);
 		}else {
-
+			if((varType = currentProcedure.getType(leftVar, 1)) == -1) {
+				varType = procedureList.get(0).getType(leftVar, 1);
+				leftVar = procedureList.get(0).getCaptureName(leftVar);
+			}else {
+				leftVar = currentProcedure.getCaptureName(leftVar);
+				leftVar += currentProcedure.getId();
+			}
 		}
 		if(varType == SARRAY) {
 			currentProcedure.addToList("\tPOP\tGR2");
 			currentProcedure.addToList("\tPOP\tGR1");
-			currentProcedure.addToList("\tST\tGR2, " + currentProcedure.getCaptureName(leftVar) + ", GR1");
+			currentProcedure.addToList("\tST\tGR2, " + leftVar + ", GR1");
 		}else {
 			currentProcedure.addToList("\tPOP\tGR1");
-			currentProcedure.addToList("\tST\tGR1, " + currentProcedure.getCaptureName(leftVar));
+			currentProcedure.addToList("\tST\tGR1, " + leftVar);
 		}
+	}
+
+	@Override
+	protected void procedureCallStatement() {//(34)
+		boolean exist = false;
+		String tempName;
+		ProcedureModel procedure = new ProcedureModel();
+		for(ProcedureModel proc: procedureList) {
+			if(proc.getName().equals(wordsList.get(pointer))) {
+				exist = true;
+				procedure = proc;
+				break;
+			}
+		}
+		if(!exist) {
+			semError();
+		}
+
+		procedureName();
+		if(tokenList.get(pointer++) != SLPAREN) {
+			pointer--;
+		}else {
+			seqOfFormulae();
+			if(tokenList.get(pointer++) != SRPAREN) {
+				synError();
+			}
+		}
+
+		while((tempName = procedure.getTemp()) != null) {
+			currentProcedure.addToList("\tPOP\tGR1");
+			currentProcedure.addToList("\tST\tGR1, " + tempName);
+		}
+
+		currentProcedure.addToList("\tCALL\t" + procedure.getCaptureName());
+
+		/*    */
 	}
 
 	protected void inOutString() {//(43)
@@ -211,15 +272,14 @@ public class CompileModel extends CheckModel{
 					}
 				}else {
 					String name;
-					if((name = currentProcedure.getCaptureName(wordsList.get(pointer - 1))) == "") {
-						if((name = procedureList.get(0).getCaptureName(wordsList.get(pointer - 1))) == "") {
-
-						}else {
-
-						}
-
+					if(currentProcedure.isMain()) {
+						name = currentProcedure.getCaptureName(wordsList.get(pointer - 1));
 					}else {
-
+						if((name = currentProcedure.getCaptureName(wordsList.get(pointer - 1))) == "") {
+							name = procedureList.get(0).getCaptureName(wordsList.get(pointer - 1));
+						}else {
+							name += currentProcedure.getId();
+						}
 					}
 					currentProcedure.addToList("\tLD\tGR1, " + name);
 					currentProcedure.addToList("\tPUSH\t0, GR1");
@@ -232,15 +292,14 @@ public class CompileModel extends CheckModel{
 				}
 			}
 			String name;
-			if((name = currentProcedure.getCaptureName(wordsList.get(pointer - 2))) == "") {
-				if((name = procedureList.get(0).getCaptureName(wordsList.get(pointer - 2))) == "") {
-
-				}else {
-
-				}
-
+			if(currentProcedure.isMain()) {
+				name = currentProcedure.getCaptureName(wordsList.get(pointer - 2));
 			}else {
-
+				if((name = currentProcedure.getCaptureName(wordsList.get(pointer - 2))) == "") {
+					name = procedureList.get(0).getCaptureName(wordsList.get(pointer - 2));
+				}else {
+					name += currentProcedure.getId();
+				}
 			}
 
 			suffix();
@@ -585,4 +644,54 @@ public class CompileModel extends CheckModel{
 
 	/* ****************************************************************** */
 
+
+	protected void tempStandardType() {//(10)
+		switch(tokenList.get(pointer++)) {
+		case SINTEGER:
+			for(String tempName: tempNameList) {
+				if(!currentProcedure.addToList(new IntegerType(tempName))) {
+					semError();
+				}
+
+				if(tempName.length() > 8) {
+					tempName = tempName.substring(0, 8);
+				}
+				tempName = tempName.toUpperCase();
+				tempName += currentProcedure.getId();
+				currentProcedure.addToTempParameterList(tempName);
+			}
+			break;
+		case SCHAR:
+			for(String tempName: tempNameList) {
+				if(!currentProcedure.addToList(new CharType(tempName))) {
+					semError();
+				}
+
+				if(tempName.length() > 8) {
+					tempName = tempName.substring(0, 8);
+				}
+				tempName = tempName.toUpperCase();
+				tempName += currentProcedure.getId();
+				currentProcedure.addToTempParameterList(tempName);
+			}
+			break;
+		case SBOOLEAN:
+			for(String tempName: tempNameList) {
+				if(!currentProcedure.addToList(new BooleanType(tempName))) {
+					semError();
+				}
+
+				if(tempName.length() > 8) {
+					tempName = tempName.substring(0, 8);
+				}
+				tempName = tempName.toUpperCase();
+				tempName += currentProcedure.getId();
+				currentProcedure.addToTempParameterList(tempName);
+			}
+			break;
+		default:
+			synError();
+			break;
+		}
+	}
 }

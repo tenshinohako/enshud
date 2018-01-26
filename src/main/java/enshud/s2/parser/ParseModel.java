@@ -294,7 +294,7 @@ public class ParseModel {
 		}
 	}
 
-	private void elementOfSeqOfTempParameters() {
+	protected void elementOfSeqOfTempParameters() {
 		seqOfTempParameterNames();
 		if(tokenList.get(pointer++) != SCOLON) {
 			synError();

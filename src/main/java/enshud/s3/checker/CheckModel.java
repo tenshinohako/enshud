@@ -12,7 +12,7 @@ public class CheckModel extends ParseModel {
 
 	protected ProcedureModel currentProcedure;
 	protected ArrayList<ProcedureModel> procedureList = new ArrayList<ProcedureModel>();
-	private ArrayList<String> tempNameList;
+	protected ArrayList<String> tempNameList;
 	public CheckModel(ArrayList<Integer> list, ArrayList<Integer> list2, ArrayList<String> list3) {
 		super(list, list2);
 		wordsList = list3;
@@ -26,12 +26,14 @@ public class CheckModel extends ParseModel {
 		return procedureList;
 	}
 
+	/*
 	public void allotId() {
 		int index = 0;
 		for(ProcedureModel pro: procedureList) {
 			index = pro.allotId(index);
 		}
 	}
+	*/
 
 	@Override
 	public void program() {//(1)
