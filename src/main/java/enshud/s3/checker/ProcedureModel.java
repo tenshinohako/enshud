@@ -20,7 +20,7 @@ public class ProcedureModel {
 	private String captureProcedureName;
 	//private int beginId;
 	//private int endId;
-	private int id = 0;
+	private int id;
 	private boolean isMain = false;
 
 	public String getTemp() {
@@ -38,7 +38,7 @@ public class ProcedureModel {
 	}
 
 	public void setId(int id) {
-		id = this.id;
+		this.id = id;
 	}
 
 	public int getId() {
@@ -79,7 +79,7 @@ public class ProcedureModel {
 			}
 
 			for(int i=0; i<arrayList.size(); i++) {
-				list.add(arrayList.get(i).getCaptureName() + "\tDS\t" + arrayList.get(i).getMax());
+				list.add(arrayList.get(i).getCaptureName() + "\tDS\t" + arrayList.get(i).getMax() + 1);
 			}
 		}else {
 			for(int i=0; i<integerList.size(); i++) {
@@ -95,7 +95,7 @@ public class ProcedureModel {
 			}
 
 			for(int i=0; i<arrayList.size(); i++) {
-				list.add(arrayList.get(i).getCaptureName() + id + "\tDS\t" + arrayList.get(i).getMax());
+				list.add(arrayList.get(i).getCaptureName() + id + "\tDS\t" + arrayList.get(i).getMax() + 1);
 			}
 		}
 

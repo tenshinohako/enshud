@@ -22,9 +22,8 @@ public class CompileModel extends CheckModel{
 	//int pointer = 0;
 
 
-	public CompileModel(ArrayList<Integer> list, ArrayList<Integer> list2, ArrayList<String> list3/*, ArrayList<ProcedureModel> procedureList*/) {
+	public CompileModel(ArrayList<Integer> list, ArrayList<Integer> list2, ArrayList<String> list3) {
 		super(list, list2, list3);
-		//this.currentProcedure = procedureList.get(0);
 	}
 
 	public ArrayList<String> getOutList(){
@@ -436,7 +435,7 @@ public class CompileModel extends CheckModel{
 			currentProcedure.addToList("\tPOP\tGR1");
 			currentProcedure.addToList("\tLD\tGR2, =-1");
 			currentProcedure.addToList("\tCALL\tMULT");
-			currentProcedure.addToList("\tPUSH\t0, GR1");
+			currentProcedure.addToList("\tPUSH\t0, GR2");
 		}
 		return type;
 	}
