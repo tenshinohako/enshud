@@ -182,7 +182,7 @@ public class CompileModel extends CheckModel{
 	@Override
 	protected void procedureCallStatement() {//(34)
 		boolean exist = false;
-		String tempName;
+		//String tempName;
 		ProcedureModel procedure = new ProcedureModel();
 		for(ProcedureModel proc: procedureList) {
 			if(proc.getName().equals(wordsList.get(pointer))) {
@@ -199,16 +199,25 @@ public class CompileModel extends CheckModel{
 		if(tokenList.get(pointer++) != SLPAREN) {
 			pointer--;
 		}else {
-			seqOfFormulae();
+			callSeqOfFormulae();
 			if(tokenList.get(pointer++) != SRPAREN) {
 				synError();
 			}
 		}
 
-		while((tempName = procedure.getTemp()) != null) {
+		ArrayList<String> tempList = currentProcedure.getTempList();
+		int i = tempList.size() - 1;
+
+		while(i > 0) {
+			String tempName = tempList.get(i);
 			currentProcedure.addToList("\tPOP\tGR1");
 			currentProcedure.addToList("\tST\tGR1, " + tempName);
 		}
+
+		/*while((tempName = procedure.getTemp()) != null) {
+			currentProcedure.addToList("\tPOP\tGR1");
+			currentProcedure.addToList("\tST\tGR1, " + tempName);
+		}*/
 
 		currentProcedure.addToList("\tCALL\t" + procedure.getCaptureName());
 
@@ -639,6 +648,21 @@ public class CompileModel extends CheckModel{
 		}
 	}
 
+
+
+	/* ****************************************************************** */
+
+	protected void callSeqOfFormulae() {//(35)
+		typeFormula();
+		while(true) {
+			if(tokenList.get(pointer++) != SCOMMA) {
+				pointer--;
+				break;
+			}else {
+				typeFormula();
+			}
+		}
+	}
 
 
 	/* ****************************************************************** */

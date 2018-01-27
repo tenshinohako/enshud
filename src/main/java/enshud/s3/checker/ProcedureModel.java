@@ -23,6 +23,10 @@ public class ProcedureModel {
 	private int id;
 	private boolean isMain = false;
 
+	public ArrayList<String> getTempList(){
+		return tempParameterList;
+	}
+
 	public String getTemp() {
 		try {
 			String temp = tempParameterList.get(tempParameterList.size() - 1);
@@ -79,7 +83,7 @@ public class ProcedureModel {
 			}
 
 			for(int i=0; i<arrayList.size(); i++) {
-				list.add(arrayList.get(i).getCaptureName() + "\tDS\t" + arrayList.get(i).getMax() + 1);
+				list.add(arrayList.get(i).getCaptureName() + "\tDS\t" + (arrayList.get(i).getMax() + 1));
 			}
 		}else {
 			for(int i=0; i<integerList.size(); i++) {

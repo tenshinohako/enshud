@@ -21,8 +21,9 @@ public class Compiler {
 		//new Compiler().run("data/ts/normal01.ts", "tmp/out.cas");
 		//new Compiler().run("data/ts/normal02.ts", "tmp/out.cas");
 		//new Compiler().run("data/ts/normal03.ts", "tmp/out.cas");
-		new Compiler().run("data/ts/normal04.ts", "tmp/out.cas");
+		//new Compiler().run("data/ts/normal04.ts", "tmp/out.cas");
 		//new Compiler().run("data/ts/normal07.ts", "tmp/out.cas");
+		new Compiler().run("data/ts/normal08.ts", "tmp/out.cas");
 
 		// CaslSimulatorクラスを使ってコンパイルしたcasを，CASLアセンブラ & COMETシミュレータで実行する
 		//CaslSimulator.run("tmp/out.cas", "tmp/out.ans", "36", "48");
