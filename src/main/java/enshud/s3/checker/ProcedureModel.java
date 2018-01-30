@@ -68,7 +68,6 @@ public class ProcedureModel {
 	public ArrayList<String> getVarList(){
 		ArrayList<String> list = new ArrayList<String>();
 
-
 		if(isMain) {
 			for(int i=0; i<integerList.size(); i++) {
 				list.add(integerList.get(i).getCaptureName() + "\tDS\t1");
@@ -83,7 +82,7 @@ public class ProcedureModel {
 			}
 
 			for(int i=0; i<arrayList.size(); i++) {
-				list.add(arrayList.get(i).getCaptureName() + "\tDS\t" + (arrayList.get(i).getMax() + 1));
+				list.add(arrayList.get(i).getCaptureName() + "\tDS\t" + (arrayList.get(i).getSize()));
 			}
 		}else {
 			for(int i=0; i<integerList.size(); i++) {
@@ -103,7 +102,6 @@ public class ProcedureModel {
 			}
 		}
 
-
 		return list;
 	}
 
@@ -113,6 +111,32 @@ public class ProcedureModel {
 
 	public void addToList(String str) {
 		compoundList.add(str);
+	}
+
+	public int getSize(String varName) {
+		if(existsInArrayList(varName)) {
+			for(ArrayType var: arrayList) {
+				if(varName.equals(var.getName())) {
+					return var.getSize();
+				}
+			}
+			return -1;
+		}else {
+			return -1;
+		}
+	}
+
+	public int getMin(String varName) {
+		if(existsInArrayList(varName)) {
+			for(ArrayType var: arrayList) {
+				if(varName.equals(var.getName())) {
+					return var.getMin();
+				}
+			}
+			return -1;
+		}else {
+			return -1;
+		}
 	}
 
 	public String getCaptureName(String varName) {

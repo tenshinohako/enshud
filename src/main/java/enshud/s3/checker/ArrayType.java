@@ -12,6 +12,7 @@ class ArrayType{
 	int type;
 	int min;
 	int max;
+	int size;
 	//int id;
 	ArrayList<Integer> intList;
 	ArrayList<Character> charList;
@@ -22,6 +23,7 @@ class ArrayType{
 		this.type = type;
 		this.min = min;
 		this.max = max;
+		this.size = max - min + 1;
 
 		this.captureName = name;
 
@@ -58,4 +60,11 @@ class ArrayType{
 		return max;
 	}
 
+	public int getMin() {
+		return min;
+	}
+
+	public int getSize() {
+		return size;
+	}
 }

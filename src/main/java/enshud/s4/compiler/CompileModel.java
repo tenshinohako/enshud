@@ -157,14 +157,22 @@ public class CompileModel extends CheckModel{
 			semError();
 		}
 		int varType;
+		int arrayMin = 0;
 		if(currentProcedure.isMain()) {
-			varType = currentProcedure.getType(leftVar, 1);
+			if((varType = currentProcedure.getType(leftVar, 1)) == SARRAY) {
+				arrayMin = currentProcedure.getMin(leftVar);
+			}
 			leftVar = currentProcedure.getCaptureName(leftVar);
 		}else {
 			if((varType = currentProcedure.getType(leftVar, 1)) == -1) {
-				varType = procedureList.get(0).getType(leftVar, 1);
+				if((varType = procedureList.get(0).getType(leftVar, 1)) == SARRAY) {
+					arrayMin = currentProcedure.getMin(leftVar);
+				}
 				leftVar = procedureList.get(0).getCaptureName(leftVar);
 			}else {
+				if(varType == SARRAY) {
+					arrayMin = currentProcedure.getMin(leftVar);
+				}
 				leftVar = currentProcedure.getCaptureName(leftVar);
 				leftVar += currentProcedure.getId();
 			}
@@ -172,6 +180,7 @@ public class CompileModel extends CheckModel{
 		if(varType == SARRAY) {
 			currentProcedure.addToList("\tPOP\tGR2");
 			currentProcedure.addToList("\tPOP\tGR1");
+			currentProcedure.addToList("\tSUBA\tGR1, =" + arrayMin);
 			currentProcedure.addToList("\tST\tGR2, " + leftVar + ", GR1");
 		}else {
 			currentProcedure.addToList("\tPOP\tGR1");
@@ -205,23 +214,17 @@ public class CompileModel extends CheckModel{
 			}
 		}
 
-		ArrayList<String> tempList = currentProcedure.getTempList();
-		int i = tempList.size() - 1;
+		ArrayList<String> tempList = procedure.getTempList();
 
-		while(i > 0) {
+		for(int i = tempList.size() - 1; i >= 0; i--) {
+			System.out.println(i);
 			String tempName = tempList.get(i);
 			currentProcedure.addToList("\tPOP\tGR1");
 			currentProcedure.addToList("\tST\tGR1, " + tempName);
 		}
 
-		/*while((tempName = procedure.getTemp()) != null) {
-			currentProcedure.addToList("\tPOP\tGR1");
-			currentProcedure.addToList("\tST\tGR1, " + tempName);
-		}*/
-
 		currentProcedure.addToList("\tCALL\t" + procedure.getCaptureName());
 
-		/*    */
 	}
 
 	protected void inOutString() {//(43)
@@ -300,18 +303,23 @@ public class CompileModel extends CheckModel{
 				}
 			}
 			String name;
+			int arrayMin = 0;
 			if(currentProcedure.isMain()) {
 				name = currentProcedure.getCaptureName(wordsList.get(pointer - 2));
+				arrayMin = currentProcedure.getMin(wordsList.get(pointer - 2));
 			}else {
 				if((name = currentProcedure.getCaptureName(wordsList.get(pointer - 2))) == "") {
 					name = procedureList.get(0).getCaptureName(wordsList.get(pointer - 2));
+					arrayMin = procedureList.get(0).getMin(wordsList.get(pointer - 2));
 				}else {
 					name += currentProcedure.getId();
+					arrayMin = currentProcedure.getMin(wordsList.get(pointer - 2));
 				}
 			}
 
 			suffix();
 			currentProcedure.addToList("\tPOP\tGR2");
+			currentProcedure.addToList("\tSUBA\tGR2, =" + arrayMin);
 			currentProcedure.addToList("\tLD\tGR1, " + name + ", GR2");
 			currentProcedure.addToList("\tPUSH\t0, GR1");
 
