@@ -9,7 +9,7 @@ public class MySim extends CaslSimulator{
 		//CaslSimulator.run("data/cas/mycas.cas", "tmp/out.ans");
 
 
-		CaslSimulator.run("tmp/out.cas", "tmp/out.ans", "8", "12");
+		CaslSimulator.run("tmp/out.cas", "tmp/out.ans");
 	}
 
 }

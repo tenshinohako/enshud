@@ -218,8 +218,9 @@ public class Lexer {
 	 */
 	public static void main(final String[] args) {
 		// normalの確認
-		new Lexer().run("data/pas/normal01.pas", "tmp/out1.ts");
-		new Lexer().run("data/pas/normal02.pas", "tmp/out2.ts");
+		//new Lexer().run("data/pas/normal01.pas", "tmp/out1.ts");
+		//new Lexer().run("data/pas/normal02.pas", "tmp/out2.ts");
+		new Lexer().run("data/pas/normal09.pas", "tmp/out9.ts");
 	}
 
 	/**

@@ -19,6 +19,7 @@ public class CompileModel extends CheckModel{
 	private int whileNum = 0;
 	private int stringNum = 0;
 	private int idNum = 1;
+	private boolean writeArray = false;
 	//int pointer = 0;
 
 
@@ -255,8 +256,18 @@ public class CompileModel extends CheckModel{
 		}
 	}
 
-
-
+	@Override
+	protected void seqOfVars() {//(44)
+		readVar();
+		while(true) {
+			if(tokenList.get(pointer++) != SCOMMA) {
+				pointer--;
+				break;
+			}else {
+				readVar();
+			}
+		}
+	}
 
 	/* ****************************************************************** */
 	protected void typeVar() {//(30)
@@ -275,11 +286,45 @@ public class CompileModel extends CheckModel{
 			if(currentProcedure.isArrayType(wordsList.get(pointer - 1))) {
 				if(tokenList.get(pointer - 3) != SWRITELN) {
 					semError();
+				}else {
+					int type = currentProcedure.getType(wordsList.get(pointer - 1));
+					String name = currentProcedure.getCaptureName(wordsList.get(pointer - 1));
+					if(type == SCHAR) {
+						for(int i = 0; i < currentProcedure.getSize(wordsList.get(pointer - 1)); i++) {
+							currentProcedure.addToList("\tLD\tGR1,=" + i);
+							currentProcedure.addToList("\tLD\tGR2, " + name + ", GR1");
+							currentProcedure.addToList("\tCALL\tWRTCH");
+						}
+					}else if(type == SINTEGER){
+						for(int i = 0; i < currentProcedure.getSize(wordsList.get(pointer - 1)); i++) {
+							currentProcedure.addToList("\tLD\tGR1,=" + i);
+							currentProcedure.addToList("\tLD\tGR2, " + name + ", GR1");
+							currentProcedure.addToList("\tCALL\tWRTINT");
+						}
+					}
+					writeArray = true;
 				}
 			}else {
 				if(procedureList.get(0).isArrayType(wordsList.get(pointer - 1))) {
 					if(tokenList.get(pointer - 3) != SWRITELN) {
 						semError();
+					}else {
+						int type = procedureList.get(0).getType(wordsList.get(pointer - 1));
+						String name = procedureList.get(0).getCaptureName(wordsList.get(pointer - 1));
+						if(type == SCHAR) {
+							for(int i = 0; i < procedureList.get(0).getSize(wordsList.get(pointer - 1)); i++) {
+								procedureList.get(0).addToList("\tLD\tGR1,=" + i);
+								procedureList.get(0).addToList("\tLD\tGR2, " + name + ", GR1");
+								procedureList.get(0).addToList("\tCALL\tWRTCH");
+							}
+						}else if(type == SINTEGER){
+							for(int i = 0; i < procedureList.get(0).getSize(wordsList.get(pointer - 1)); i++) {
+								procedureList.get(0).addToList("\tLD\tGR1,=" + i);
+								procedureList.get(0).addToList("\tLD\tGR2, " + name + ", GR1");
+								procedureList.get(0).addToList("\tCALL\tWRTINT");
+							}
+						}
+						writeArray = true;
 					}
 				}else {
 					String name;
@@ -402,6 +447,14 @@ public class CompileModel extends CheckModel{
 		}else {
 			type = typeTerm();
 		}
+		
+		if(isMinus) {
+			currentProcedure.addToList("\tPOP\tGR1");
+			currentProcedure.addToList("\tLD\tGR2, =-1");
+			currentProcedure.addToList("\tCALL\tMULT");
+			currentProcedure.addToList("\tPUSH\t0, GR2");
+		}
+		
 		expectedType = type;
 		while(true) {
 			int ope = typeAdditiveOpe();
@@ -448,12 +501,14 @@ public class CompileModel extends CheckModel{
 				break;
 			}
 		}
+		/*
 		if(isMinus) {
 			currentProcedure.addToList("\tPOP\tGR1");
 			currentProcedure.addToList("\tLD\tGR2, =-1");
 			currentProcedure.addToList("\tCALL\tMULT");
 			currentProcedure.addToList("\tPUSH\t0, GR2");
 		}
+		*/
 		return type;
 	}
 
@@ -639,20 +694,119 @@ public class CompileModel extends CheckModel{
 
 	private void writeLine() {
 		int type = typeFormula();
-		switch(type) {
-		case SINTEGER:
-			currentProcedure.addToList("\tPOP\tGR2");
-			currentProcedure.addToList("\tCALL\tWRTINT");
-			break;
-		case SCHAR:
-			currentProcedure.addToList("\tPOP\tGR2");
-			currentProcedure.addToList("\tCALL\tWRTCH");
-			break;
-		case SSTRING:
-			currentProcedure.addToList("\tPOP\tGR1");
-			currentProcedure.addToList("\tLAD\tGR2, STR" + (stringNum++));
-			currentProcedure.addToList("\tCALL\tWRTSTR");
-			break;
+		if(!writeArray) {
+			switch(type) {
+			case SINTEGER:
+				currentProcedure.addToList("\tPOP\tGR2");
+				currentProcedure.addToList("\tCALL\tWRTINT");
+				break;
+			case SCHAR:
+				currentProcedure.addToList("\tPOP\tGR2");
+				currentProcedure.addToList("\tCALL\tWRTCH");
+				break;
+			case SSTRING:
+				currentProcedure.addToList("\tPOP\tGR1");
+				currentProcedure.addToList("\tLAD\tGR2, STR" + (stringNum++));
+				currentProcedure.addToList("\tCALL\tWRTSTR");
+				break;
+			}
+			writeArray = false;
+		}
+	}
+	
+	/* ****************************************************************** */
+	
+	protected void readVar() {//(30)
+		varName();
+		if(!currentProcedure.existsInProcedure(wordsList.get(pointer - 1))) {
+			if(currentProcedure != procedureList.get(0)) {
+				if(!procedureList.get(0).existsInProcedure(wordsList.get(pointer - 1))){
+					semError();
+				}
+			}else {
+				semError();
+			}
+		}
+		int type = 0;
+		if(tokenList.get(pointer++) != SLBRACKET) {
+			pointer--;
+			if(currentProcedure.isArrayType(wordsList.get(pointer - 1))) {
+				if(tokenList.get(pointer - 3) != SWRITELN) {
+					semError();
+				}
+			}else {
+				if(procedureList.get(0).isArrayType(wordsList.get(pointer - 1))) {
+					if(tokenList.get(pointer - 3) != SWRITELN) {
+						semError();
+					}
+				}else {
+					String name;
+					if(currentProcedure.isMain()) {
+						name = currentProcedure.getCaptureName(wordsList.get(pointer - 1));
+						type = currentProcedure.getType(wordsList.get(pointer - 1));
+					}else {
+						if((name = currentProcedure.getCaptureName(wordsList.get(pointer - 1))) == "") {
+							name = procedureList.get(0).getCaptureName(wordsList.get(pointer - 1));
+							type = procedureList.get(0).getType(wordsList.get(pointer - 1));
+						}else {
+							name += currentProcedure.getId();
+							type = currentProcedure.getType(wordsList.get(pointer - 1));
+						}
+					}
+					switch(type) {
+					case SCHAR:
+						currentProcedure.addToList("\tLAD\tGR2, " + name);
+						currentProcedure.addToList("\tCALL\tRDCH");
+						break;
+					case SINTEGER:
+						currentProcedure.addToList("\tLAD\tGR2, " + name);
+						currentProcedure.addToList("\tCALL\tRDINT");
+						break;
+					}
+				}
+			}
+		}else {
+			if(!currentProcedure.isArrayType(wordsList.get(pointer - 2))) {
+				if(!procedureList.get(0).isArrayType(wordsList.get(pointer - 2))) {
+				semError();
+				}
+			}
+			String name;
+			int arrayMin = 0;
+			if(currentProcedure.isMain()) {
+				name = currentProcedure.getCaptureName(wordsList.get(pointer - 2));
+				arrayMin = currentProcedure.getMin(wordsList.get(pointer - 2));
+				type = currentProcedure.getType(wordsList.get(pointer - 1));
+			}else {
+				if((name = currentProcedure.getCaptureName(wordsList.get(pointer - 2))) == "") {
+					name = procedureList.get(0).getCaptureName(wordsList.get(pointer - 2));
+					arrayMin = procedureList.get(0).getMin(wordsList.get(pointer - 2));
+					type = procedureList.get(0).getType(wordsList.get(pointer - 1));
+				}else {
+					name += currentProcedure.getId();
+					arrayMin = currentProcedure.getMin(wordsList.get(pointer - 2));
+					type = currentProcedure.getType(wordsList.get(pointer - 1));
+				}
+			}
+
+			suffix();
+			
+			switch(type) {
+			case SCHAR:
+				currentProcedure.addToList("\tPOP\tGR1");
+				currentProcedure.addToList("\tLAD\tGR2, " + name + ", GR1");
+				currentProcedure.addToList("\tCALL\tRDCH");
+				break;
+			case SINTEGER:
+				currentProcedure.addToList("\tPOP\tGR1");
+				currentProcedure.addToList("\tLAD\tGR2, " + name + ", GR1");
+				currentProcedure.addToList("\tCALL\tRDINT");
+				break;
+			}
+
+			if(tokenList.get(pointer++) != SRBRACKET) {
+				synError();
+			}
 		}
 	}
 

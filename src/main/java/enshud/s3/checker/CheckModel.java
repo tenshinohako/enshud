@@ -112,6 +112,9 @@ public class CheckModel extends ParseModel {
 			minSuffix();
 			try {
 				minSuffix = Integer.parseInt(wordsList.get(pointer - 1));
+				if(tokenList.get(pointer - 2) == SMINUS) {
+					minSuffix = -minSuffix;
+				}
 			}catch(NumberFormatException e) {
 				minSuffix = 0;
 			}
@@ -121,6 +124,9 @@ public class CheckModel extends ParseModel {
 			maxSuffix();
 			try {
 				maxSuffix = Integer.parseInt(wordsList.get(pointer - 1));
+				if(tokenList.get(pointer - 2) == SMINUS) {
+					maxSuffix = -maxSuffix;
+				}
 			}catch(NumberFormatException e) {
 				maxSuffix = 0;
 			}
@@ -134,8 +140,7 @@ public class CheckModel extends ParseModel {
 			super.standardType();
 			int varType = tokenList.get(pointer - 1);
 			for(String tempName: tempNameList) {
-				if(!currentProcedure.addToList(
-						new ArrayType(tempName, varType, minSuffix, maxSuffix))) {
+				if(!currentProcedure.addToList(new ArrayType(tempName, varType, minSuffix, maxSuffix))) {
 					semError();
 				}
 			}
