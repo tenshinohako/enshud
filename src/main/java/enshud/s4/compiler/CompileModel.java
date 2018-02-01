@@ -167,7 +167,7 @@ public class CompileModel extends CheckModel{
 		}else {
 			if((varType = currentProcedure.getType(leftVar, 1)) == -1) {
 				if((varType = procedureList.get(0).getType(leftVar, 1)) == SARRAY) {
-					arrayMin = currentProcedure.getMin(leftVar);
+					arrayMin = procedureList.get(0).getMin(leftVar);
 				}
 				leftVar = procedureList.get(0).getCaptureName(leftVar);
 			}else {
@@ -447,14 +447,14 @@ public class CompileModel extends CheckModel{
 		}else {
 			type = typeTerm();
 		}
-		
+
 		if(isMinus) {
 			currentProcedure.addToList("\tPOP\tGR1");
 			currentProcedure.addToList("\tLD\tGR2, =-1");
 			currentProcedure.addToList("\tCALL\tMULT");
 			currentProcedure.addToList("\tPUSH\t0, GR2");
 		}
-		
+
 		expectedType = type;
 		while(true) {
 			int ope = typeAdditiveOpe();
@@ -713,9 +713,9 @@ public class CompileModel extends CheckModel{
 			writeArray = false;
 		}
 	}
-	
+
 	/* ****************************************************************** */
-	
+
 	protected void readVar() {//(30)
 		varName();
 		if(!currentProcedure.existsInProcedure(wordsList.get(pointer - 1))) {
@@ -790,7 +790,7 @@ public class CompileModel extends CheckModel{
 			}
 
 			suffix();
-			
+
 			switch(type) {
 			case SCHAR:
 				currentProcedure.addToList("\tPOP\tGR1");
