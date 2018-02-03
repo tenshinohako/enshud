@@ -772,19 +772,19 @@ public class CompileModel extends CheckModel{
 				}
 			}
 			String name;
-			int arrayMin = 0;
+			//int arrayMin = 0;
 			if(currentProcedure.isMain()) {
 				name = currentProcedure.getCaptureName(wordsList.get(pointer - 2));
-				arrayMin = currentProcedure.getMin(wordsList.get(pointer - 2));
+				//arrayMin = currentProcedure.getMin(wordsList.get(pointer - 2));
 				type = currentProcedure.getType(wordsList.get(pointer - 1));
 			}else {
 				if((name = currentProcedure.getCaptureName(wordsList.get(pointer - 2))) == "") {
 					name = procedureList.get(0).getCaptureName(wordsList.get(pointer - 2));
-					arrayMin = procedureList.get(0).getMin(wordsList.get(pointer - 2));
+					//arrayMin = procedureList.get(0).getMin(wordsList.get(pointer - 2));
 					type = procedureList.get(0).getType(wordsList.get(pointer - 1));
 				}else {
 					name += currentProcedure.getId();
-					arrayMin = currentProcedure.getMin(wordsList.get(pointer - 2));
+					//arrayMin = currentProcedure.getMin(wordsList.get(pointer - 2));
 					type = currentProcedure.getType(wordsList.get(pointer - 1));
 				}
 			}
