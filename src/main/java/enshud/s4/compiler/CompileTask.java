@@ -4,11 +4,11 @@ import java.util.ArrayList;
 
 import enshud.s3.checker.BooleanType;
 import enshud.s3.checker.CharType;
-import enshud.s3.checker.CheckModel;
+import enshud.s3.checker.CheckTask;
 import enshud.s3.checker.IntegerType;
 import enshud.s3.checker.ProcedureModel;
 
-public class CompileModel extends CheckModel{
+public class CompileTask extends CheckTask{
 	//ArrayList<ProcedureModel> procedureList;
 	//ArrayList<Integer> tokenList;
 	//ProcedureModel currentProcedure;
@@ -23,7 +23,7 @@ public class CompileModel extends CheckModel{
 	//int pointer = 0;
 
 
-	public CompileModel(ArrayList<Integer> list, ArrayList<Integer> list2, ArrayList<String> list3) {
+	public CompileTask(ArrayList<Integer> list, ArrayList<Integer> list2, ArrayList<String> list3) {
 		super(list, list2, list3);
 	}
 

@@ -55,7 +55,7 @@ public class Parser {
 			}
 			br.close();
 
-			ParseModel pm = new ParseModel(tokenList, lineList);
+			ParseTask pm = new ParseTask(tokenList, lineList);
 			pm.program();
 
 			if(pm.getSynErrorLine() == -1) {

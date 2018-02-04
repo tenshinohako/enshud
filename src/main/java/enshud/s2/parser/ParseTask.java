@@ -2,7 +2,7 @@ package enshud.s2.parser;
 
 import java.util.ArrayList;
 
-public class ParseModel {
+public class ParseTask {
 	protected static final int SAND = 0;
 	protected static final int SARRAY = 1;
 	protected static final int SBEGIN = 2;
@@ -55,7 +55,7 @@ public class ParseModel {
 	protected Integer pointer = new Integer(0);
 	protected Integer synErrorLine = new Integer(-1);
 
-	public ParseModel(ArrayList<Integer> list, ArrayList<Integer> list2) {
+	public ParseTask(ArrayList<Integer> list, ArrayList<Integer> list2) {
 		tokenList = list;
 		lineList = list2;
 	}

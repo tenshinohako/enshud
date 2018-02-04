@@ -69,7 +69,7 @@ public class Checker {
 			}
 			br.close();
 
-			CheckModel cm = new CheckModel(tokenList, lineList, wordsList);
+			CheckTask cm = new CheckTask(tokenList, lineList, wordsList);
 			cm.program();
 
 			if(cm.getSynErrorLine() == -1) {

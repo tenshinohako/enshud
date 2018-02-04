@@ -2,9 +2,9 @@ package enshud.s3.checker;
 
 import java.util.ArrayList;
 
-import enshud.s2.parser.ParseModel;
+import enshud.s2.parser.ParseTask;
 
-public class CheckModel extends ParseModel {
+public class CheckTask extends ParseTask {
 
 	protected ArrayList<String> wordsList;
 	protected Integer semErrorLine = new Integer(-1);
@@ -13,7 +13,7 @@ public class CheckModel extends ParseModel {
 	protected ProcedureModel currentProcedure;
 	protected ArrayList<ProcedureModel> procedureList = new ArrayList<ProcedureModel>();
 	protected ArrayList<String> tempNameList;
-	public CheckModel(ArrayList<Integer> list, ArrayList<Integer> list2, ArrayList<String> list3) {
+	public CheckTask(ArrayList<Integer> list, ArrayList<Integer> list2, ArrayList<String> list3) {
 		super(list, list2);
 		wordsList = list3;
 	}

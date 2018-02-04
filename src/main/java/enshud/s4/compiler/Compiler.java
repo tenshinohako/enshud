@@ -19,13 +19,13 @@ public class Compiler {
 	public static void main(final String[] args) {
 		// Compilerを実行してcasを生成する
 		//new Compiler().run("data/ts/normal01.ts", "tmp/out.cas");
-		new Compiler().run("data/ts/normal02.ts", "tmp/out.cas");
+		//new Compiler().run("data/ts/normal02.ts", "tmp/out.cas");
 		//new Compiler().run("data/ts/normal03.ts", "tmp/out.cas");
-		//new Compiler().run("data/ts/normal04.ts", "tmp/out.cas");
+		new Compiler().run("data/ts/normal04.ts", "tmp/out.cas");
 		//new Compiler().run("data/ts/normal07.ts", "tmp/out.cas");
 		//new Compiler().run("data/ts/normal08.ts", "tmp/out.cas");
 		//new Compiler().run("data/ts/normal09.ts", "tmp/out.cas");
-		
+
 		// CaslSimulatorクラスを使ってコンパイルしたcasを，CASLアセンブラ & COMETシミュレータで実行する
 		//CaslSimulator.run("tmp/out.cas", "tmp/out.ans", "36", "48");
 	}
@@ -66,7 +66,7 @@ public class Compiler {
 			br.close();
 
 			//CheckModel cm = new CheckModel(tokenList, lineList, wordsList);
-			CompileModel cm = new CompileModel(tokenList, lineList, wordsList);
+			CompileTask cm = new CompileTask(tokenList, lineList, wordsList);
 			cm.program();
 
 			if(cm.getSynErrorLine() == -1) {
